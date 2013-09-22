@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+
+require "thor"
+require "baleen"
+
+def pid
+  pid = `ps ax | grep -E "baleen-server start|restart" | grep -v grep | awk '{print $1}'`
+  pid.split("\n")
+end
+
+def running?
+  if pid.size == 0
+    false
+  elsif pid.first.to_i == Process.pid
+    false
+  else
+    true
+  end
+end
+
+class BaleenServerCli < Thor
+
+  desc "start", "Start Baleen server"
+  option :docker_host, :default => "127.0.0.1"
+  option :docker_port, :default => 4243
+  option :port,        :default => 5533
+  option :debug,       :type    => :boolean
+  def start
+    if running?
+      warning "baleen-server is already running"
+      warning "Exiting..."
+      exit
+    end
+
+    docker_host = options[:docker_host]
+    docker_port = options[:docker_port]
+    port        = options[:port]
+    debug       = options[:debug]
+
+    info "Starting baleen-server..."
+    info "  Listening on: #{port}"
+    info "  Docker API: http://#{docker_host}:#{docker_port}"
+
+    Process.daemon(true, debug)
+    Baleen::Server.new(docker_host: docker_host, docker_port: docker_port, port: port)
+
+    # Prevent main thread from exiting for Celluloid actors to continue running
+    # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions
+    sleep
+  end
+
+  desc "stop", "Stop Baleen server"
+  def stop
+    if running?
+      notice "Stopping Baleen server..."
+      `kill -9 #{pid.first}`
+    else
+      notice "baleen-server is not running"
+    end
+  end
+
+  desc "restart", "Restart Baleen server"
+  def restart
+    self.stop
+    self.start
+  end
+end
+
+BaleenServerCli.start

@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require "thor"
+require "baleen"
+
+class BaleenCommand < Thor
+
+  desc "cucumber", "Running cucumber features"
+  option :image, :required => true
+  option :work_dir, :default => "./"
+  option :files, :default => "features"
+  option :before_command, :default => nil
+  option :host, :default => "127.0.0.1"
+  option :port, :default => "5533"
+  option :concurrency, :default => 2
+  def cucumber
+    client  = Baleen::Client.new(options[:host], options[:port])
+    request = Baleen::Message::Request::Cucumber.new(
+                image: options[:image],
+                work_dir: options[:work_dir],
+                files: options[:files],
+                before_command: options[:before_command],
+                concurrency: options[:concurrency].to_i,
+              )
+
+    job     = Baleen::Job.new(client, request)
+    job.start
+  end
+end
+
+BaleenCommand.start
