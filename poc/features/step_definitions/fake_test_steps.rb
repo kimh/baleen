@@ -5,8 +5,8 @@ end
 Then /cpu intensive operation/ do
   t1 = Time.now
 
-  rep = 10000
-  n   = 10000
+  rep = 1000
+  n   = 1000
 
   x = Array.new(n, 0)
 
