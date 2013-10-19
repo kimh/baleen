@@ -4,7 +4,7 @@ require "thor"
 require "baleen"
 
 def pid
-  pid = `ps ax | grep -E "baleen-server start|restart" | grep -v grep | awk '{print $1}'`
+  pid = `ps ax | grep -E "bin/baleen-server" | grep -v grep | awk '{print $1}'`
   pid.split("\n")
 end
 
