@@ -35,7 +35,7 @@ module Baleen
         raise RuntimeError, 'Connection closed by server'
       end
 
-      Baleen::Message::Decoder.new(response).decode
+      Baleen::Task::Decoder.new(response).decode
     end
 
   end

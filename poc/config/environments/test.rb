@@ -11,7 +11,7 @@ CiApp::Application.configure do
   config.serve_static_assets = true
   config.static_cache_control = "public, max-age=3600"
 
-  # Log error message when you accidentally call methods on nil
+  # Log error task when you accidentally call methods on nil
   config.whiny_nils = true
 
   # Show full error reports and disable caching

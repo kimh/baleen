@@ -1,7 +1,7 @@
 require "baleen/version"
 
 require 'baleen/client'
-require 'baleen/message/message'
+require 'baleen/task/task'
 require 'baleen/task'
 require 'baleen/job'
 

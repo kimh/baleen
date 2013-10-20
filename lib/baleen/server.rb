@@ -38,28 +38,19 @@ module Baleen
     end
 
     def handle_request(socket)
-      message = socket.gets
+      json_task = socket.gets
 
-      if message.nil?
+      if json_task.nil?
         socket.close
         return
       end
-      msg = parse_request(message)
 
-      case msg
-        when Message::Request::ClientDisconnect
-          socket.close
-        when Message::Request::Cucumber
-          manager = RunnerManager.new(socket, msg)
-          manager.run
-        else
-          warn "Received unknown request"
-          puts msg.inspect
-      end
+      manager = RunnerManager.new(socket, parse_request(json_task))
+      manager.run
     end
 
-    def parse_request(message)
-      Baleen::Message::Decoder.new(message).decode
+    def parse_request(json_task)
+      Baleen::Task::Decoder.new(json_task).decode
     end
   end
 

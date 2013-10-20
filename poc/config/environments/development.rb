@@ -6,7 +6,7 @@ CiApp::Application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
-  # Log error message when you accidentally call methods on nil.
+  # Log error task when you accidentally call methods on nil.
   config.whiny_nils = true
 
   # Show full error reports and disable caching

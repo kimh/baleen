@@ -3,7 +3,7 @@ require "colorize"
 module Baleen
   class ResultDisplay
     def initialize(result, start_time: nil, end_time: nil)
-      @result     = result.result
+      @result     = result
       @start_time = start_time
       @end_time   = end_time
     end
@@ -22,12 +22,12 @@ module Baleen
     def detail
       notice "[Details]"
       @result.each do |r|
-        puts "Id: ".yellow + "#{r[:container_id]}".green
-        puts "status code: ".yellow + "#{r[:status_code]}".green
-        puts "feature file: ".yellow + "#{r[:file]}".green
+        puts "Id: ".yellow + "#{r['container_id']}".green
+        puts "status code: ".yellow + "#{r['status_code']}".green
+        puts "feature file: ".yellow + "#{r['file']}".green
         puts "logs:".yellow
         puts "------------------------------------".yellow
-        puts "#{r[:log]}".green
+        puts "#{r['log']}".green
       end
     end
 
