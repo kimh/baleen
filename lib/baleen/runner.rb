@@ -73,8 +73,7 @@ module Baleen
       max_retry = 3; count = 0
 
       begin
-        @docker_client.create_container(@task)
-        @docker_client.start_container
+        @docker_client.start_container(@task)
       rescue Excon::Errors::NotFound => e
         count += 1
         if count > max_retry

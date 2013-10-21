@@ -21,10 +21,12 @@ end
 class BaleenServerCli < Thor
 
   desc "start", "Start Baleen server"
-  option :docker_host, :default => "127.0.0.1"
-  option :docker_port, :default => 4243
-  option :port,        :default => 5533
-  option :debug,       :type    => :boolean
+  option :docker_host,   :default => "127.0.0.1", :desc => "Host of Docker"
+  option :docker_port,   :default => 4243, :desc => "Port that Docker is listening to"
+  option :port,          :default => 5533, :desc => "Port that baleen server is listening to"
+  option :debug,         :type    => :boolean, :desc => "When specified, baleen-server prints out debug message to console"
+  option :git_hook,      :type    => :boolean, :desc => "When specified, baleen-server will receive github post-receive"
+  option :git_hook_port, :default => 4567, :desc => "Port to accept github post-receive"
   def start
     if running?
       warning "baleen-server is already running"
@@ -32,16 +34,19 @@ class BaleenServerCli < Thor
       exit
     end
 
-    docker_host = options[:docker_host]
-    docker_port = options[:docker_port]
-    port        = options[:port]
-    debug       = options[:debug]
+    docker_host   = options[:docker_host]
+    docker_port   = options[:docker_port]
+    port          = options[:port]
+    debug         = options[:debug]
+    git_hook      = options[:git_hook]
+    git_hook_port = options[:git_hook_port]
 
     info "Starting baleen-server..."
     info "  Listening on: #{port}"
     info "  Docker API: http://#{docker_host}:#{docker_port}"
 
     Process.daemon(true, debug)
+    Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
     Baleen::Server.new(docker_host: docker_host, docker_port: docker_port, port: port)
 
     # Prevent main thread from exiting for Celluloid actors to continue running
@@ -64,6 +69,7 @@ class BaleenServerCli < Thor
     self.stop
     self.start
   end
+
 end
 
 BaleenServerCli.start

@@ -30,6 +30,7 @@ module Baleen
       def initialize
         @params = {}
         @params[:klass] = self.class.to_s
+        @params[:files]
       end
 
       # Dynamically define getter and setter for keys of @params

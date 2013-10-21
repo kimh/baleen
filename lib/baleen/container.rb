@@ -4,15 +4,18 @@ module Baleen
     class DockerClient
       Result = Struct.new("Result", :status_code, :container_id, :log)
 
-      def create_container(params)
+      def start_container(params)
         @container = Docker::Container.create('Cmd' => [params.shell, params.opt, params.commands], 'Image' => params.image)
-      end
 
-      def start_container
         info "Start container #{@container.id}"
         @container.start
         @container.wait
         info "Finish container #{@container.id}"
+
+        if params.commit
+          info "Committing the change of container #{@container.id}"
+          @container.commit({repo: params.image}) if params.commit
+        end
       end
 
       def result

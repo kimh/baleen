@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'docker-api'
   spec.add_runtime_dependency 'colorize'
   spec.add_runtime_dependency 'thor'
+  spec.add_runtime_dependency 'sinatra'
 
 end
 
