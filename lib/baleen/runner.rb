@@ -5,8 +5,6 @@ module Baleen
   class RunnerManager
     include Celluloid::IO
 
-    CONCURRENCY=2
-
     def initialize(socket, task)
       @socket     = socket
       @queue      = []
