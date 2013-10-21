@@ -1,13 +1,14 @@
 require 'celluloid/io'
 require 'celluloid/autostart'
-require 'baleen/utils/colored_puts'
+require 'baleen/utils/highlighter'
 
 module Baleen
   class Client
     include Celluloid::IO
     finalizer :close
 
-    def initialize(host, port=12345)
+    def initialize(host, port, debug=false)
+      Celluloid.logger = nil unless debug
       @socket = TCPSocket.open(host, port)
     end
 
@@ -17,25 +18,34 @@ module Baleen
 
     def wait_response
       loop {
-        if response = handle_response(@socket.gets)
-          return response
-        end
+        response = handle_response(@socket.gets)
+        return response if response
       }
     end
 
     def close
       @socket.close if @socket
-      info "connection closed"
+      hl_warn "Connection closed"
 
     rescue IOError; nil
     end
 
-    def handle_response(response)
-      if response.nil?
+    def handle_response(msg)
+      if msg.nil?
         raise RuntimeError, 'Connection closed by server'
       end
 
-      Baleen::Task::Decoder.new(response).decode
+      response = Serializable.deserialize(msg)
+
+      if response.is_a? Message::Base
+        response.print_message
+      end
+
+      if response.terminate?
+        response
+      else
+        nil
+      end
     end
 
   end

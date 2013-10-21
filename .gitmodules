@@ -1,0 +1,3 @@
+[submodule "poc"]
+	path = poc
+	url = https://github.com/kimh/baleen-poc

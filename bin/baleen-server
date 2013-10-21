@@ -18,31 +18,61 @@ def running?
   end
 end
 
+
 class BaleenServerCli < Thor
 
+  include Baleen
+  include Baleen::Default
+
   desc "start", "Start Baleen server"
-  option :docker_host, :default => "127.0.0.1"
-  option :docker_port, :default => 4243
-  option :port,        :default => 5533
-  option :debug,       :type    => :boolean
+  option :docker_host,   :desc => "Host of Docker"
+  option :docker_port,   :desc => "Port that Docker is listening to"
+  option :port,          :desc => "Port that baleen server is listening to"
+  option :ci,            :desc => "When specified, baleen-server will receive github post-receive"
+  option :ci_port,       :desc => "Port to accept github post-receive"
+  option :project_file,  :desc => "Path to project file (baleen.yml)"
+  option :dir,           :desc => "Specify the directory for baleen to save temp files, logs, caches, etc."
+  option :log_level,     :desc => "Specify log level"
+  option :debug,         :desc => "Run with debug mode. Alias to set log_level to debug", :type => :boolean
   def start
     if running?
-      warning "baleen-server is already running"
-      warning "Exiting..."
+      BL.error "baleen-server is already running"
+      BL.error "Exiting..."
       exit
     end
 
-    docker_host = options[:docker_host]
-    docker_port = options[:docker_port]
-    port        = options[:port]
-    debug       = options[:debug]
+    docker_host   = options[:docker_host]   || default_docker_host
+    docker_port   = options[:docker_port]   || default_docker_port
+    port          = options[:port]          || default_port
+    dir           = options[:dir]           || default_dir
+    project_file  = options[:project_file]  || default_project_file
+    ci_port       = options[:ci_port]       || default_ci_port
+    ci            = options[:ci]
+    debug         = options[:debug]
+    log_level     = options[:log_level]
 
-    info "Starting baleen-server..."
-    info "  Listening on: #{port}"
-    info "  Docker API: http://#{docker_host}:#{docker_port}"
+    config        = Configuration.instance
+    config.dir    = dir
+    config.debug  = debug
+    log_levels    = {"debug" => DEBUG, "info" => INFO, "warn" => WARN, "error" => ERROR}
+
+    if log_level.nil?
+      config.log_level = default_log_level
+    else
+      unless log_levels.keys.include? log_level
+        hl_error "Unknown log level: #{log_level}"
+        exit 1
+      end
+      config.log_level = log_levels[log_level]
+    end
+
+    BL.notice("Starting baleen-server...")
+    BL.notice("  Listening on: #{port}")
+    BL.notice("  Docker API: http://#{docker_host}:#{docker_port}").eol
 
     Process.daemon(true, debug)
-    Baleen::Server.new(docker_host: docker_host, docker_port: docker_port, port: port)
+    Baleen::Server.new(docker_host, docker_port, port, project_file)
+    Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port, log_level: log_level) if ci
 
     # Prevent main thread from exiting for Celluloid actors to continue running
     # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions
@@ -52,10 +82,10 @@ class BaleenServerCli < Thor
   desc "stop", "Stop Baleen server"
   def stop
     if running?
-      notice "Stopping Baleen server..."
+      BL.warn "Stopping Baleen server..."
       `kill -9 #{pid.first}`
     else
-      notice "baleen-server is not running"
+      BL.warn "baleen-server is not running"
     end
   end
 
@@ -64,6 +94,7 @@ class BaleenServerCli < Thor
     self.stop
     self.start
   end
+
 end
 
 BaleenServerCli.start

@@ -8,10 +8,13 @@ module Baleen
 
   class Server
     include Celluloid::IO
+    include Default
+
     finalizer :shutdown
 
-    def initialize(docker_host: "127.0.0.1", docker_port: 4243, port: 5533)
+    def initialize(docker_host, docker_port, port, project_file)
       Docker.url = "http://#{docker_host}:#{docker_port}"
+      Baleen::Project.load_project(project_file)
       @server = TCPServer.new("0.0.0.0", port)
       async.run
     end
@@ -21,7 +24,11 @@ module Baleen
     end
 
     def shutdown
-      @server.close if @server
+      begin
+        @server.close
+      rescue IOError
+        BL.info "Shutting down baleen-server..."
+      end
     end
 
     def handle_connection(socket)
@@ -31,27 +38,51 @@ module Baleen
       case ex
         when IOError; nil # when trying to close already closed socket
         else
-          warn "Unknown exception occured"
           puts ex.inspect
           raise ex
       end
     end
 
     def handle_request(socket)
-      json_task = socket.gets
+      json_request = socket.gets
 
-      if json_task.nil?
+      if json_request.nil?
         socket.close
         return
       end
 
-      manager = RunnerManager.new(socket, parse_request(json_task))
-      manager.run
+      conn = Connection.new(socket)
+      request = parse_request(json_request)
+
+      begin
+        if request.is_a? Baleen::Task::RunProject
+          task = find_project(request.project, conn).task
+        else
+          task = request # request itself is a task
+        end
+      rescue Baleen::Error::ProjectNotFound
+        return
+      end
+
+      RunnerManager.new(conn, task).run do |response|
+        conn.respond(response)
+      end
     end
 
-    def parse_request(json_task)
-      Baleen::Task::Decoder.new(json_task).decode
+    def parse_request(request)
+      Serializable.deserialize(request)
+    end
+
+    def find_project(name, conn)
+      project = Baleen::Project.find_project_by_name(name.to_sym)
+
+      unless project
+        conn.notify_exception("No project found: #{name}")
+        raise Baleen::Error::ProjectNotFound
+      end
+
+      project
     end
   end
-
 end
+

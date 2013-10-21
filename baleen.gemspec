@@ -25,12 +25,14 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry"
   spec.add_development_dependency "awesome_print"
   spec.add_development_dependency "interactive_editor"
+  spec.add_development_dependency "rspec"
 
   spec.add_runtime_dependency 'celluloid'
   spec.add_runtime_dependency 'celluloid-io'
   spec.add_runtime_dependency 'docker-api'
   spec.add_runtime_dependency 'colorize'
   spec.add_runtime_dependency 'thor'
+  spec.add_runtime_dependency 'sinatra'
 
 end
 

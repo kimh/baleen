@@ -3,29 +3,98 @@
 require "thor"
 require "baleen"
 
-class BaleenCommand < Thor
-
-  desc "cucumber", "Running cucumber features"
-  option :image, :required => true
-  option :work_dir, :default => "./"
-  option :files, :default => "features"
-  option :before_command, :default => nil
-  option :host, :default => "127.0.0.1"
-  option :port, :default => "5533"
-  option :concurrency, :default => 2
-  def cucumber
-    client  = Baleen::Client.new(options[:host], options[:port])
-    request = Baleen::Task::Request::Cucumber.new(
-                image: options[:image],
-                work_dir: options[:work_dir],
-                files: options[:files],
-                before_command: options[:before_command],
-                concurrency: options[:concurrency].to_i,
-              )
-
-    job     = Baleen::Job.new(client, request)
+module BaleenCliHelper
+  def job_start(project)
+    klass = project[:framework][:type].to_s.capitalize
+    task = Baleen::Task.const_get(klass).new(
+      image: project[:runner][:image],
+      work_dir: project[:runner][:work_dir],
+      files: project[:framework][:files],
+      before_command: project[:runner][:before_command],
+      concurrency: project[:runner][:concurrency].to_i,
+    )
+    client  = Baleen::Client.new(project[:base][:baleen_server], project[:base][:port])
+    job     = Baleen::Job.new(client, task)
     job.start
   end
 end
 
-BaleenCommand.start
+module BaleenCLI
+  class Project < Thor
+
+    include Baleen::Default
+
+    option :baleen_server
+    option :port
+    option :debug, :type => :boolean
+
+    desc "start", "Running baleen project"
+    def start(name)
+      baleen_server = ENV["baleen_server"] || options[:baleen_server] || default_baleen_server
+      debug = options[:debug]
+      port = ENV["baleen_port"] || options[:port] || default_port
+      task = Baleen::Task::RunProject.new(
+        :project => name
+      )
+      client  = Baleen::Client.new(baleen_server, port, debug)
+      job     = Baleen::Job.new(client, task)
+      job.start
+    end
+    default_task :start
+
+    desc "list", "List baleen projects registered at baleen-server"
+    def list
+      #TODO
+    end
+  end
+
+  class Cucumber < Thor
+
+    include Baleen::Default
+    include BaleenCliHelper
+
+    option :baleen_server, :required => true
+    option :port
+    option :before_command
+    option :concurrency
+    option :work_dir
+    option :features
+    option :image, :required => true
+    option :debug, :type => :boolean
+
+    desc "cucumber", "Running cucumber project from options"
+    def start
+     project = {
+       base: {
+         baleen_server: options[:baleen_server],
+         port: options[:port]                    || default_port
+       },
+       runner: {
+         before_command: options[:before_command] || default_before_command,
+         concurrency: options[:concurrency]       || default_concurrency,
+         work_dir: options[:work_dir]             || default_work_dir,
+         image: options[:image],
+       },
+       framework: {
+         files: options[:features] || default_features,
+         type: "cucumber"
+       }
+     }
+
+     job_start(project)
+    end
+    default_task :start
+
+  end
+
+  class Main < Thor
+
+    desc "project", "Project"
+    subcommand "project", Project
+
+    desc "cucumber", "Running cucumber project from options"
+    subcommand "cucumber", Cucumber
+  end
+end
+
+BaleenCLI::Main.start
