@@ -4,3 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem "baleen", path: "/Users/kimh/git/baleen"
+
+#gem "webmock", "< 1.14"
