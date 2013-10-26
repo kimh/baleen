@@ -21,7 +21,11 @@ module Baleen
     end
 
     def shutdown
-      @server.close if @server
+      begin
+        @server.close
+      rescue IOError
+        info "Shutting down baleen-server..."
+      end
     end
 
     def handle_connection(socket)

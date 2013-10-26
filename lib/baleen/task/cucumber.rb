@@ -22,6 +22,7 @@ module Baleen
           @params[:command]        = opt[:command]
           @params[:results]        = opt[:results]
           @params[:status]         = opt[:status]
+          @params[:commit]         = nil
         end
 
         def prepare
