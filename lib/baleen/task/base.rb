@@ -30,7 +30,18 @@ module Baleen
       def initialize
         @params = {}
         @params[:klass] = self.class.to_s
-        @params[:files]
+        @params[:shell]          = nil
+        @params[:opt]            = nil
+        @params[:work_dir]       = nil
+        @params[:files]          = nil
+        @params[:exe]            = nil
+        @params[:concurrency]    = nil
+        @params[:image]          = nil
+        @params[:before_command] = nil
+        @params[:command]        = nil
+        @params[:results]        = nil
+        @params[:status]         = nil
+        @params[:commit]         = nil
       end
 
       # Dynamically define getter and setter for keys of @params

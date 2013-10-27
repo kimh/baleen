@@ -5,7 +5,15 @@ module Baleen
       Result = Struct.new("Result", :status_code, :container_id, :log)
 
       def start_container(params)
-        @container = Docker::Container.create('Cmd' => [params.shell, params.opt, params.commands], 'Image' => params.image)
+        begin
+          @container = Docker::Container.create('Cmd' => [params.shell, params.opt, params.commands], 'Image' => params.image)
+        rescue Excon::Errors::NotFound
+          # TODO: this message has to be shown on client side
+          warning "#{params.image} does not exist. Trying to pull from public repo...This may take time."
+          Docker::Image.create('fromImage' => params.image)
+          info "#{params.image} successfully pulled"
+          retry
+        end
 
         info "Start container #{@container.id}"
         @container.start
