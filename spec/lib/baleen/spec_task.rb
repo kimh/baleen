@@ -10,6 +10,11 @@ describe Baleen::Task do
     @docker_client = DockerClient.new
   end
 
+  before :each do
+    @image = Docker::Image.build("from #{base_image}")
+    @image.tag('repo' => test_image, 'force' => true)
+  end
+
   describe Generic do
     it "executes command" do
       string = "OK"
@@ -23,34 +28,20 @@ describe Baleen::Task do
   end
 
   describe Request::Cucumber do
-    before :each do
-      @image = Docker::Image.build("from #{base_image}")
-      @image.tag('repo' => test_image, 'force' => true)
-      @image.insert_local('localPath' => poc_tar_path, 'outputPath' => '/')
-    end
-
     it "runs cucumber test" do
       task = Baleen::Task::Request::Cucumber.new(
         image: test_image,
-        #before_command: "tar zxvf /#{poc_tar} && cd /",
-        command: "ls -la",
+        work_dir: "/poc",
+        files: "features/t0.feature",
+        before_command: "source /etc/profile",
+        concurrency: 1,
       )
       @docker_client.start_container(task)
-      puts @docker_client.result.log
+      expect(@docker_client.result.log).to include "Scenario"
     end
   end
 
   describe ImageUpdate do
-
-    before :each do
-      @image = Docker::Image.build("from #{base_image}")
-      @image.tag('repo' => test_image, 'force' => true)
-    end
-
-    after :each do
-      @new_image.remove if @new_image
-    end
-
     it "commit changes" do
       before_id = @image.json["id"]
       task = Baleen::Task::ImageUpdate.new(
