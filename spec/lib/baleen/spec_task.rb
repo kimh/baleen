@@ -22,6 +22,24 @@ describe Baleen::Task do
     end
   end
 
+  describe Request::Cucumber do
+    before :each do
+      @image = Docker::Image.build("from #{base_image}")
+      @image.tag('repo' => test_image, 'force' => true)
+      @image.insert_local('localPath' => poc_tar_path, 'outputPath' => '/')
+    end
+
+    it "runs cucumber test" do
+      task = Baleen::Task::Request::Cucumber.new(
+        image: test_image,
+        #before_command: "tar zxvf /#{poc_tar} && cd /",
+        command: "ls -la",
+      )
+      @docker_client.start_container(task)
+      puts @docker_client.result.log
+    end
+  end
+
   describe ImageUpdate do
 
     before :each do
