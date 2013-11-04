@@ -18,7 +18,13 @@ module Baleen
     def wait_response
       loop {
         if response = handle_response(@socket.gets)
-          return response
+          if response.class == Baleen::Task::Request::Cucumber
+            return response
+          else
+            require "pp"
+            load "/Users/kimh/.rvm/gems/ruby-1.9.3-p286@nice/gems/awesome_print-1.2.0/lib/awesome_print.rb"
+            ap response
+          end
         end
       }
     end

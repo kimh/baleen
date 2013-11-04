@@ -1,6 +1,18 @@
 require "baleen/error"
+require 'forwardable'
 
 module Baleen
+
+  class Connection
+    def initialize(socket)
+      @socket = socket
+    end
+
+    def respond(msg)
+      response = Baleen::Task::Response.new({:message => msg})
+      @socket.puts(response.to_json)
+    end
+  end
 
   class RunnerManager
     include Celluloid::IO
@@ -10,6 +22,7 @@ module Baleen
       @queue      = []
       @results    = []
       @task       = task
+      @connection = Connection.new(socket)
     end
 
     def run
@@ -37,7 +50,7 @@ module Baleen
       @task.target_files.map {|file|
         task = @task.dup
         task.files = file
-        Runner.new(task, @socket)
+        Runner.new(task, @connection)
       }.each_slice(@task.concurrency).map {|r| r}
     end
 
@@ -49,14 +62,18 @@ module Baleen
   class Runner
     include Celluloid::IO
 
+    extend Forwardable
+
+    def_delegator :@connection, :respond
+
     Result = Struct.new("Result", :status_code, :container_id, :log)
     attr_reader :status
 
-    def initialize(task, socket=nil)
+    def initialize(task, connection=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
       @status = nil
       @task = task
-      @socket = socket
+      @connection = connection
     end
 
     def run
@@ -86,13 +103,11 @@ module Baleen
       max_retry = 3; count = 0
 
       begin
-        info "Start container #{@container.id}"
+
+        respond("Start container #{@container.id}") if @connection
         @container.start
         @container.wait
-        info "Finish container #{@container.id}"
-
-        res = Baleen::Task::Response.new({:message => "AAAAAAA"})
-        @socket.puts(res.to_json) if @socket
+        respond("Finish container #{@container.id}") if @connection
 
         if @task.commit
           info "Committing the change of container #{@container.id}"
