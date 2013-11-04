@@ -15,8 +15,6 @@ module Baleen
   end
 
   class RunnerManager
-    include Celluloid::IO
-
     def initialize(socket, task)
       @socket     = socket
       @queue      = []
