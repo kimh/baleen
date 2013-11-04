@@ -20,7 +20,7 @@ module Baleen
     private
 
     def show_results(s_time, e_time)
-      display = ResultDisplay.new(@response.results, start_time: s_time, end_time: e_time)
+      display = ResultDisplay.new(@response.results, s_time, e_time)
       display.summary
       display.detail
     end

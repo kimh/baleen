@@ -24,7 +24,7 @@ module Baleen
       begin
         @server.close
       rescue IOError
-        info "Shutting down baleen-server..."
+        colored_info "Shutting down baleen-server..."
       end
     end
 
@@ -35,7 +35,6 @@ module Baleen
       case ex
         when IOError; nil # when trying to close already closed socket
         else
-          warn "Unknown exception occured"
           puts ex.inspect
           raise ex
       end
@@ -49,13 +48,16 @@ module Baleen
         return
       end
 
-      manager = RunnerManager.new(socket, parse_request(json_task))
-      manager.run
+      conn = Connection.new(socket)
+      manager = RunnerManager.new(conn, parse_request(json_task))
+      manager.run do |response|
+        conn.respond(response)
+      end
     end
 
     def parse_request(json_task)
-      Baleen::Task::Decoder.new(json_task).decode
+      Serializable.deserialize(json_task)
     end
   end
-
 end
+

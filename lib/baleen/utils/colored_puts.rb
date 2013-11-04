@@ -3,15 +3,15 @@ require "colorize"
 module Kernel
   private
 
-  def info(msg)
+  def colored_info(msg)
     puts msg.green
   end
 
-  def notice(msg)
+  def colored_warn(msg)
     puts msg.yellow
   end
 
-  def warning(msg)
+  def colored_error(msg)
     puts msg.red
   end
 end

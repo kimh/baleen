@@ -29,8 +29,8 @@ class BaleenServerCli < Thor
   option :git_hook_port, :default => 4567, :desc => "Port to accept github post-receive"
   def start
     if running?
-      warning "baleen-server is already running"
-      warning "Exiting..."
+      colored_error "baleen-server is already running"
+      colored_error "Exiting..."
       exit
     end
 
@@ -41,9 +41,9 @@ class BaleenServerCli < Thor
     git_hook      = options[:git_hook]
     git_hook_port = options[:git_hook_port]
 
-    info "Starting baleen-server..."
-    info "  Listening on: #{port}"
-    info "  Docker API: http://#{docker_host}:#{docker_port}"
+    colored_info "Starting baleen-server..."
+    colored_info "  Listening on: #{port}"
+    colored_info "  Docker API: http://#{docker_host}:#{docker_port}"
 
     Process.daemon(true, debug)
     Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
@@ -57,10 +57,10 @@ class BaleenServerCli < Thor
   desc "stop", "Stop Baleen server"
   def stop
     if running?
-      notice "Stopping Baleen server..."
+      colored_warn "Stopping Baleen server..."
       `kill -9 #{pid.first}`
     else
-      notice "baleen-server is not running"
+      colored_warn "baleen-server is not running"
     end
   end
 

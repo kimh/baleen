@@ -1,8 +1,9 @@
-require "baleen/task/base"
+require "baleen/task/task"
 
 module Baleen
   module Task
-    class Generic < Base
+    class Generic < Baleen::Task::Base
+
       def initialize(opt)
         super()
         @params[:shell]          = opt[:shell]       ||="/bin/bash"

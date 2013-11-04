@@ -1,30 +1,24 @@
 require "baleen/error"
+require 'forwardable'
 
 module Baleen
 
   class RunnerManager
-    include Celluloid::IO
-
-    def initialize(socket, task)
-      @socket     = socket
-      @queue      = []
-      @results    = []
+    def initialize(connection, task)
       @task       = task
+      @connection = connection
     end
 
     def run
+      results = []
       prepare_task
       create_runners.each do |runners|
-        @queue = runners
-        @queue.each do |runner|
-          runner.async.run
+        runners.map{|runner| runner.future.run}.each do |actor|
+          results << actor.value
         end
-        loop {break if monitor_runners}
-        @results += @queue.map {|runner| runner.status}
       end
-      @task.results = @results
-      @task.status = "done"
-      @socket.puts(@task.to_json)
+      @task.results = results
+      yield @task
     end
 
     private
@@ -37,64 +31,37 @@ module Baleen
       @task.target_files.map {|file|
         task = @task.dup
         task.files = file
-        Runner.new(task)
+        Runner.new(task, @connection)
       }.each_slice(@task.concurrency).map {|r| r}
     end
 
-    def monitor_runners
-      @queue.all?{ |r| r.status }
-    end
   end
 
   class Runner
-    include Celluloid::IO
+    include Celluloid
+    extend Forwardable
 
-    Result = Struct.new("Result", :status_code, :container_id, :log)
-    attr_reader :status
+    def_delegator :@connection, :notify_info
 
-    def initialize(task)
+    def initialize(task, connection=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
-      @status = nil
+      @connection = connection ? connection : Connection.new
       @task = task
     end
 
     def run
-      start_runner do |result|
-        @status = {
-           status_code: result.status_code,
-           container_id: result.container_id,
-           log: result.log,
-           file: @task.files,
-        }
-      end
-      sleep 0.1 # Stop a moment until RunnerManager checks the status
-    end
-
-    def result
-      rst = @container.json
-      log = @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true)
-
-      Result.new(
-        rst["State"]["ExitCode"],
-        rst["ID"],
-        log
-      )
-    end
-
-    def start_runner
       max_retry = 3; count = 0
 
       begin
-        info "Start container #{@container.id}"
+        notify_info("Start container #{@container.id}")
         @container.start
-        @container.wait
-        info "Finish container #{@container.id}"
+        @container.wait(600) #TODO move to configuration
+        notify_info("Finish container #{@container.id}")
 
         if @task.commit
-          info "Committing the change of container #{@container.id}"
+          notify_info("Committing the change of container #{@container.id}")
           @container.commit({repo: @task.image}) if @task.commit
         end
-
       rescue Excon::Errors::NotFound => e
         count += 1
         if count > max_retry
@@ -103,7 +70,13 @@ module Baleen
           retry
         end
       end
-      yield( result )
+
+      return {
+        status_code: @container.json["State"]["ExitCode"],
+        container_id: @container.id,
+        log: @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true),
+        file: @task.files,
+      }
     end
 
   end
