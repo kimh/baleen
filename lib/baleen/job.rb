@@ -2,6 +2,7 @@ require 'baleen/result_display'
 
 module Baleen
   class Job
+    include Celluloid::IO
 
     def initialize(client, msg)
       @client = client
@@ -12,7 +13,19 @@ module Baleen
     def start
       start_time = Time.now
       @client.request(@msg.params)
-      @response = @client.wait_response
+      loop {
+         @response = @client.wait_response
+         puts "------ DEBUG START -------"
+           require "pp"
+           load "/Users/kimh/.rvm/gems/ruby-1.9.3-p286@nice/gems/awesome_print-1.2.0/lib/awesome_print.rb"
+           ap @response
+         puts "-------DEBUG END   -------"
+        if @response.class == Baleen::Task::Request::Cucumber
+          puts "done"
+          break
+        end
+
+      }
       end_time = Time.now
       show_results(start_time, end_time)
     end

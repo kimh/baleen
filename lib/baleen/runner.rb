@@ -37,7 +37,7 @@ module Baleen
       @task.target_files.map {|file|
         task = @task.dup
         task.files = file
-        Runner.new(task)
+        Runner.new(task, @socket)
       }.each_slice(@task.concurrency).map {|r| r}
     end
 
@@ -52,10 +52,11 @@ module Baleen
     Result = Struct.new("Result", :status_code, :container_id, :log)
     attr_reader :status
 
-    def initialize(task)
+    def initialize(task, socket=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
       @status = nil
       @task = task
+      @socket = socket
     end
 
     def run
@@ -89,6 +90,9 @@ module Baleen
         @container.start
         @container.wait
         info "Finish container #{@container.id}"
+
+        res = Baleen::Task::Response.new({:message => "AAAAAAA"})
+        @socket.puts(res.to_json) if @socket
 
         if @task.commit
           info "Committing the change of container #{@container.id}"
