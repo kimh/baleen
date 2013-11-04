@@ -49,10 +49,11 @@ module Baleen
   class Runner
     include Celluloid::IO
 
+    Result = Struct.new("Result", :status_code, :container_id, :log)
     attr_reader :status
 
     def initialize(task)
-      @docker_client = Container::DockerClient.new
+      @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
       @status = nil
       @task = task
     end
@@ -69,11 +70,31 @@ module Baleen
       sleep 0.1 # Stop a moment until RunnerManager checks the status
     end
 
+    def result
+      rst = @container.json
+      log = @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true)
+
+      Result.new(
+        rst["State"]["ExitCode"],
+        rst["ID"],
+        log
+      )
+    end
+
     def start_runner
       max_retry = 3; count = 0
 
       begin
-        @docker_client.start_container(@task)
+        info "Start container #{@container.id}"
+        @container.start
+        @container.wait
+        info "Finish container #{@container.id}"
+
+        if @task.commit
+          info "Committing the change of container #{@container.id}"
+          @container.commit({repo: @task.image}) if @task.commit
+        end
+
       rescue Excon::Errors::NotFound => e
         count += 1
         if count > max_retry
@@ -82,7 +103,7 @@ module Baleen
           retry
         end
       end
-      yield( @docker_client.result )
+      yield( result )
     end
 
   end

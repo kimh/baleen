@@ -1,12 +1,11 @@
 require_relative '../../spec_helper'
 
-include Baleen::Container
 include Baleen::Task
 
 describe Baleen::Task do
 
   before :all do
-    @docker_client = DockerClient.new
+    #@docker_client = DockerClient.new
   end
 
   describe Generic do
@@ -16,8 +15,9 @@ describe Baleen::Task do
         image: base_image,
         command: "echo #{string}",
       )
-      @docker_client.start_container(task)
-      expect(@docker_client.result.log).to include string
+      runner = Baleen::Runner.new(task)
+      runner.run
+      expect(runner.result.log).to include string
     end
   end
 
@@ -30,8 +30,9 @@ describe Baleen::Task do
         before_command: "source /etc/profile",
         concurrency: 1,
       )
-      @docker_client.start_container(task)
-      expect(@docker_client.result.log).to include "Scenario"
+      runner = Baleen::Runner.new(task)
+      runner.run
+      expect(runner.result.log).to include "Scenario"
     end
   end
 
@@ -53,7 +54,8 @@ describe Baleen::Task do
         command: "touch ./new_file.txt",
       )
 
-      @docker_client.start_container(task)
+      runner = Baleen::Runner.new(task)
+      runner.run
       @image = Docker::Image.build("from #{test_image}")
       after_id = @image.json["id"]
 
