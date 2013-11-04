@@ -17,23 +17,19 @@ module Baleen
   class RunnerManager
     def initialize(socket, task)
       @socket     = socket
-      @queue      = []
-      @results    = []
       @task       = task
       @connection = Connection.new(socket)
     end
 
     def run
+      results = []
       prepare_task
       create_runners.each do |runners|
-        @queue = runners
-        @queue.each do |runner|
-          runner.async.run
+        runners.map{|runner| runner.future.run}.each do |actor|
+          results << actor.value
         end
-        loop {break if monitor_runners}
-        @results += @queue.map {|runner| runner.status}
       end
-      @task.results = @results
+      @task.results = results
       @task.status = "done"
       @socket.puts(@task.to_json)
     end
@@ -52,66 +48,33 @@ module Baleen
       }.each_slice(@task.concurrency).map {|r| r}
     end
 
-    def monitor_runners
-      @queue.all?{ |r| r.status }
-    end
   end
 
   class Runner
-    include Celluloid::IO
-
+    include Celluloid
     extend Forwardable
 
     def_delegator :@connection, :respond
 
-    Result = Struct.new("Result", :status_code, :container_id, :log)
-    attr_reader :status
-
     def initialize(task, connection=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
-      @status = nil
       @task = task
       @connection = connection
     end
 
     def run
-      start_runner do |result|
-        @status = {
-           status_code: result.status_code,
-           container_id: result.container_id,
-           log: result.log,
-           file: @task.files,
-        }
-      end
-      sleep 0.1 # Stop a moment until RunnerManager checks the status
-    end
-
-    def result
-      rst = @container.json
-      log = @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true)
-
-      Result.new(
-        rst["State"]["ExitCode"],
-        rst["ID"],
-        log
-      )
-    end
-
-    def start_runner
       max_retry = 3; count = 0
 
       begin
-
         respond("Start container #{@container.id}") if @connection
         @container.start
         @container.wait
         respond("Finish container #{@container.id}") if @connection
 
         if @task.commit
-          info "Committing the change of container #{@container.id}"
-          @container.commit({repo: @task.image}) if @task.commit
+          respond("Committing the change of container #{@container.id}") if @connection
+          @container.commit({repo: task.image}) if @task.commit
         end
-
       rescue Excon::Errors::NotFound => e
         count += 1
         if count > max_retry
@@ -120,7 +83,13 @@ module Baleen
           retry
         end
       end
-      yield( result )
+
+      return {
+        status_code: @container.json["State"]["ExitCode"],
+        container_id: @container.id,
+        log: @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true),
+        file: @task.files,
+      }
     end
 
   end

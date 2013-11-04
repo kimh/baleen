@@ -29,8 +29,8 @@ module Baleen
           task = self.dup
           task.command = %{find #{task.files} | grep "\\.feature"}
           runner = Baleen::Runner.new(task)
-          runner.run
-          @target_files = runner.status[:log].split("\n")
+          result = runner.run
+          @target_files = result[:log].split("\n")
         end
 
       end

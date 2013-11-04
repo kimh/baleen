@@ -12,7 +12,7 @@ class BaleenCommand < Thor
   option :before_command, :default => nil
   option :host, :default => "127.0.0.1"
   option :port, :default => "5533"
-  option :concurrency, :default => 2
+  option :concurrency, :default => 3
   def cucumber
     client  = Baleen::Client.new(options[:host], options[:port])
     request = Baleen::Task::Request::Cucumber.new(
