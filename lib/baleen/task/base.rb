@@ -43,6 +43,7 @@ module Baleen
         @params[:status]         = nil
         @params[:commit]         = nil
         @params[:message]        = nil
+        @params[:message_level]  = nil
       end
 
       # Dynamically define getter and setter for keys of @params

@@ -11,8 +11,8 @@ module Baleen
       @socket = socket
     end
 
-    def notify(msg)
-      response = Baleen::Task::Response.new({:message => msg})
+    def notify_info(msg)
+      response = Baleen::SimpleMessage.new({:message => msg, :message_level => "info"})
       write(response.to_json)
     end
 
@@ -60,7 +60,6 @@ module Baleen
       case ex
         when IOError; nil # when trying to close already closed socket
         else
-          warn "Unknown exception occured"
           puts ex.inspect
           raise ex
       end

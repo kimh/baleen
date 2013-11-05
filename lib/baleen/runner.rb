@@ -41,7 +41,7 @@ module Baleen
     include Celluloid
     extend Forwardable
 
-    def_delegator :@connection, :notify
+    def_delegator :@connection, :notify_info
 
     def initialize(task, connection=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
@@ -53,13 +53,13 @@ module Baleen
       max_retry = 3; count = 0
 
       begin
-        notify("Start container #{@container.id}")
+        notify_info("Start container #{@container.id}")
         @container.start
         @container.wait
-        notify("Finish container #{@container.id}")
+        notify_info("Finish container #{@container.id}")
 
         if @task.commit
-          notify("Committing the change of container #{@container.id}")
+          notify_info("Committing the change of container #{@container.id}")
           @container.commit({repo: task.image}) if @task.commit
         end
       rescue Excon::Errors::NotFound => e
