@@ -29,7 +29,7 @@ module Baleen
 
     def close
       @socket.close if @socket
-      info "connection closed"
+      colored_info "connection closed"
 
     rescue IOError; nil
     end

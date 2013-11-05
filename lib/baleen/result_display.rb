@@ -13,14 +13,14 @@ module Baleen
       time = run_time
 
       puts   ""
-      notice "[Summary]"
+      puts   "[Summary]".yellow
       puts   "Result: ".yellow + tests_result
       puts   "Time: ".yellow + time.green
       puts   ""
     end
 
     def detail
-      notice "[Details]"
+      puts "[Details]".yellow
       @result.each do |r|
         puts "Id: ".yellow + "#{r['container_id']}".green
         puts "status code: ".yellow + "#{r['status_code']}".green

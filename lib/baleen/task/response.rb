@@ -12,10 +12,14 @@ module Baleen
     def print_message
       case message_level
         when "info"
-          info message
+          colored_info message
         when "warn"
-          warn message
-        when ""
+          colored_warn message
+        when "error"
+          colored_error message
+        else
+          colored_error "Unknown message level"
+          colored_error inspect
       end
     end
   end

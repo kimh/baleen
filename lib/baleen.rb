@@ -4,10 +4,10 @@ require 'baleen/client'
 require 'baleen/task/task'
 require 'baleen/task'
 require 'baleen/job'
-
 require 'baleen/server'
 require 'baleen/runner'
 require 'baleen/git_hook'
+require 'baleen/connection'
 
 module Baleen
   # Your code goes here...
