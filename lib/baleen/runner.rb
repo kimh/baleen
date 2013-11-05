@@ -3,22 +3,10 @@ require 'forwardable'
 
 module Baleen
 
-  class Connection
-    def initialize(socket)
-      @socket = socket
-    end
-
-    def respond(msg)
-      response = Baleen::Task::Response.new({:message => msg})
-      @socket.puts(response.to_json)
-    end
-  end
-
   class RunnerManager
-    def initialize(socket, task)
-      @socket     = socket
+    def initialize(connection, task)
       @task       = task
-      @connection = Connection.new(socket)
+      @connection = connection
     end
 
     def run
@@ -30,8 +18,7 @@ module Baleen
         end
       end
       @task.results = results
-      @task.status = "done"
-      @socket.puts(@task.to_json)
+      yield @task
     end
 
     private
@@ -54,25 +41,25 @@ module Baleen
     include Celluloid
     extend Forwardable
 
-    def_delegator :@connection, :respond
+    def_delegator :@connection, :notify
 
     def initialize(task, connection=nil)
       @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
+      @connection = connection ? connection : Connection.new
       @task = task
-      @connection = connection
     end
 
     def run
       max_retry = 3; count = 0
 
       begin
-        respond("Start container #{@container.id}") if @connection
+        notify("Start container #{@container.id}")
         @container.start
         @container.wait
-        respond("Finish container #{@container.id}") if @connection
+        notify("Finish container #{@container.id}")
 
         if @task.commit
-          respond("Committing the change of container #{@container.id}") if @connection
+          notify("Committing the change of container #{@container.id}")
           @container.commit({repo: task.image}) if @task.commit
         end
       rescue Excon::Errors::NotFound => e

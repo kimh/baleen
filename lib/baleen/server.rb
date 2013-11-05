@@ -6,6 +6,31 @@ require 'json'
 
 module Baleen
 
+  class Connection
+    def initialize(socket=nil)
+      @socket = socket
+    end
+
+    def notify(msg)
+      response = Baleen::Task::Response.new({:message => msg})
+      write(response.to_json)
+    end
+
+    def respond(response)
+      write(response.to_json)
+    end
+
+    private
+
+    def write(json_data)
+      if @socket
+        @socket.puts(json_data)
+      else
+        nil
+      end
+    end
+  end
+
   class Server
     include Celluloid::IO
     finalizer :shutdown
@@ -49,8 +74,11 @@ module Baleen
         return
       end
 
-      manager = RunnerManager.new(socket, parse_request(json_task))
-      manager.run
+      conn = Connection.new(socket)
+      manager = RunnerManager.new(conn, parse_request(json_task))
+      manager.run do |response|
+        conn.respond(response)
+      end
     end
 
     def parse_request(json_task)
