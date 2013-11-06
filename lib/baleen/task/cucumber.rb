@@ -26,8 +26,13 @@ module Baleen
         end
 
         def prepare
-          task = self.dup
-          task.command = %{find #{task.files} | grep "\\.feature"}
+          task = Generic.new(
+            shell:    shell,
+            opt:      opt,
+            work_dir: work_dir,
+            image:    image,
+            command:  %{find #{files} | grep "\\.feature"}
+          )
           runner = Baleen::Runner.new(task)
           result = runner.run
           @target_files = result[:log].split("\n")
