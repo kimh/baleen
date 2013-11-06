@@ -2,7 +2,6 @@ require 'baleen/result_display'
 
 module Baleen
   class Job
-    include Celluloid::IO
 
     def initialize(client, msg)
       @client = client
