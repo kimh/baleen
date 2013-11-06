@@ -55,7 +55,7 @@ module Baleen
       begin
         notify_info("Start container #{@container.id}")
         @container.start
-        @container.wait
+        @container.wait(600) #TODO move to configuration
         notify_info("Finish container #{@container.id}")
 
         if @task.commit

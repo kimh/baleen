@@ -5,7 +5,7 @@ module Baleen
     end
 
     def notify_info(msg)
-      response = Baleen::SimpleMessage.new({:message => msg, :message_level => "info"})
+      response = Baleen::Message::ToClient.new({:message => msg, :message_level => "info"})
       write(response.to_json)
     end
 

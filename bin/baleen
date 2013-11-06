@@ -15,7 +15,7 @@ class BaleenCommand < Thor
   option :concurrency, :default => 3
   def cucumber
     client  = Baleen::Client.new(options[:host], options[:port])
-    request = Baleen::Task::Request::Cucumber.new(
+    request = Baleen::Task::Cucumber.new(
                 image: options[:image],
                 work_dir: options[:work_dir],
                 files: options[:files],

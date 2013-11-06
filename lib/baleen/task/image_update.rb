@@ -1,6 +1,11 @@
+require "baleen/task/task"
+
 module Baleen
   module Task
     class ImageUpdate < Base
+
+      include Serializable
+
       def initialize(opt)
         super()
         @params[:shell]          = opt[:shell]       ||="/bin/bash"

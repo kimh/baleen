@@ -56,8 +56,8 @@ module Baleen
     end
 
     def parse_request(json_task)
-      Baleen::Task::Decoder.new(json_task).decode
+      Serializable.deserialize(json_task)
     end
   end
-
 end
+

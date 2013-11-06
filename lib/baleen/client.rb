@@ -18,7 +18,7 @@ module Baleen
     def wait_response
       loop {
         if response = handle_response(@socket.gets)
-          if response.class == Baleen::SimpleMessage
+          if response.kind_of? Message::Base
             response.print_message
           else
             return response
@@ -39,7 +39,7 @@ module Baleen
         raise RuntimeError, 'Connection closed by server'
       end
 
-      Baleen::Task::Decoder.new(response).decode
+      Serializable.deserialize(response)
     end
 
   end
