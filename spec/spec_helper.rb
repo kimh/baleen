@@ -1,4 +1,5 @@
 require "rspec"
+require 'stringio'
 require File.expand_path('../../lib/baleen.rb', __FILE__)
 
 RSpec.configure do |config|
@@ -15,4 +16,16 @@ end
 
 def test_image
   "baleen/#{example.description.gsub("\s", "-")}"
+end
+
+def capture(stream)
+  begin
+    stream = stream.to_s
+    eval "$#{stream} = StringIO.new"
+    yield
+    result = eval("$#{stream}").string
+  ensure
+    eval "$#{stream} = #{stream.upcase}"
+  end
+  result
 end

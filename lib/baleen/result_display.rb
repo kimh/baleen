@@ -2,14 +2,14 @@ require "colorize"
 
 module Baleen
   class ResultDisplay
-    def initialize(result, start_time: nil, end_time: nil)
+    def initialize(result, start_time, end_time)
       @result     = result
       @start_time = start_time
       @end_time   = end_time
     end
 
     def summary
-      tests_result = pass_all? ? "Pass".green : "Fail".red
+      tests_result = pass_all? ? "Pass".blue : "Fail".red
       time = run_time
 
       puts   ""
@@ -34,7 +34,7 @@ module Baleen
     private
 
     def pass_all?
-      @result.all? {|r| r[:status_code] == 0}
+      @result.all? {|r| r['status_code'] == 0}
     end
 
     def run_time
