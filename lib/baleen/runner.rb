@@ -60,7 +60,7 @@ module Baleen
 
         if @task.commit
           notify_info("Committing the change of container #{@container.id}")
-          @container.commit({repo: task.image}) if @task.commit
+          @container.commit({repo: @task.image}) if @task.commit
         end
       rescue Excon::Errors::NotFound => e
         count += 1

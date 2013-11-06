@@ -16,8 +16,8 @@ describe Baleen::Task do
         command: "echo #{string}",
       )
       runner = Baleen::Runner.new(task)
-      runner.run
-      expect(runner.result.log).to include string
+      result = runner.run
+      expect(result[:log]).to include string
     end
   end
 
@@ -31,8 +31,8 @@ describe Baleen::Task do
         concurrency: 1,
       )
       runner = Baleen::Runner.new(task)
-      runner.run
-      expect(runner.result.log).to include "Scenario"
+      result = runner.run
+      expect(result[:log]).to include "Scenario"
     end
   end
 
