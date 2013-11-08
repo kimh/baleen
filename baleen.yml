@@ -1,0 +1,10 @@
+baleen_server: 127.0.0.1
+image: kimh/baleen-poc
+framework: cucumber
+features: ./features
+work_dir: ./
+concurrency: 3
+before_commands: |
+  cd /tmp
+  source /profile
+  echo "HOGE"
