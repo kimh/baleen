@@ -21,9 +21,9 @@ describe Baleen::Task do
     end
   end
 
-  describe Request::Cucumber do
+  describe Cucumber do
     it "runs cucumber test" do
-      task = Baleen::Task::Request::Cucumber.new(
+      task = Baleen::Task::Cucumber.new(
         image: base_image,
         work_dir: "/poc",
         files: "features/t0.feature",
