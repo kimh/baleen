@@ -6,12 +6,12 @@ module Baleen
 
       def initialize(opt)
         super()
-        @params[:message]       = opt[:message]
-        @params[:message_level] = opt[:message_level]
+        @params[:message] = opt[:message]
+        @params[:level]   = opt[:level]
       end
 
       def print_message
-        case message_level
+        case level
           when "info"
             colored_info message
           when "warn"
