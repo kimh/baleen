@@ -5,19 +5,20 @@ module Baleen
     class Cucumber < Baleen::Task::Base
 
       include Serializable
+      include Baleen::Default
 
       attr_reader :target_files
 
       def initialize(opt)
         super()
-        @params[:shell]          = opt[:shell]       ||="/bin/bash"
-        @params[:opt]            = opt[:opt]         ||="-c"
-        @params[:work_dir]       = opt[:work_dir]    ||="./"
-        @params[:files]          = opt[:files]       ||="features"
-        @params[:exe]            = opt[:exe]         ||="bundle exec cucumber"
-        @params[:concurrency]    = opt[:concurrency] ||=2
+        @params[:shell]          = opt[:shell]          || "/bin/bash"
+        @params[:opt]            = opt[:opt]            || "-c"
+        @params[:exe]            = opt[:exe]            || "bundle exec cucumber"
+        @params[:work_dir]       = opt[:work_dir]       || default_work_dir
+        @params[:files]          = opt[:files]          || default_features
+        @params[:concurrency]    = opt[:concurrency]    || default_concurrency
+        @params[:before_command] = opt[:before_command] || default_before_command
         @params[:image]          = opt[:image]
-        @params[:before_command] = opt[:before_command]
         @params[:command]        = opt[:command]
         @params[:results]        = opt[:results]
         @params[:status]         = opt[:status]

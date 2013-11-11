@@ -1,30 +1,6 @@
 require "yaml"
 
 module Baleen
-  module Project
-
-    class Project
-
-      def initialize(yaml)
-        unless File.exist?(yaml)
-          colored_error "#{yaml} does not exist. Please make sure file path is correct"
-          exit 1
-        end
-
-        config = Baleen::Serializable.symbolize_keys(YAML.load_file(yaml))
-
-        if Baleen::Validator::Validator.check(config)
-          @config = config
-        end
-      end
-
-      def config
-        @config
-      end
-
-    end
-  end
-
   module Validator
     class Validator
       def self.check(config)
@@ -51,37 +27,19 @@ module Baleen
 
       def mandatory_attributes
         [
-          :baleen_server,
           :framework,
           :image,
-          :concurrency,
-          :work_dir,
         ]
       end
 
       def optional_attributes
         [
+          :port,
+          :baleen_server,
           :before_commands,
+          :concurrency,
+          :work_dir,
         ]
-      end
-
-    end
-
-    class Cucumber < Common
-
-      def mandatory_attributes
-        super + [
-          :features,
-        ]
-      end
-
-      def optional_attributes
-        super + [
-        ]
-      end
-
-      def attributes
-        mandatory_attributes + optional_attributes
       end
 
       def validate
@@ -101,6 +59,25 @@ module Baleen
         end
 
         true
+      end
+
+    end
+
+    class Cucumber < Common
+
+      def mandatory_attributes
+        super + [
+          :features,
+        ]
+      end
+
+      def optional_attributes
+        super + [
+        ]
+      end
+
+      def attributes
+        mandatory_attributes + optional_attributes
       end
 
     end

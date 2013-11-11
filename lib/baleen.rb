@@ -1,5 +1,6 @@
 require "baleen/version"
 
+require 'baleen/default'
 require 'baleen/serializable'
 require 'baleen/client'
 require 'baleen/task/task'
@@ -10,7 +11,7 @@ require 'baleen/runner'
 require 'baleen/git_hook'
 require 'baleen/connection'
 require 'baleen/message/message'
-require 'baleen/project'
+require 'baleen/validator'
 
 module Baleen
   # Your code goes here...
