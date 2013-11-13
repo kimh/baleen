@@ -5,15 +5,15 @@ require "baleen"
 
 module BaleenCommandHelper
   def job_start(config)
-    klass = config[:framework].to_s.capitalize
+    klass = config[:framework][:type].to_s.capitalize
     task = Baleen::Task.const_get(klass).new(
-      image: config[:image],
-      work_dir: config[:work_dir],
-      files: config[:files],
-      before_command: config[:before_command],
-      concurrency: config[:concurrency].to_i,
+      image: config[:runner][:image],
+      work_dir: config[:runner][:work_dir],
+      files: config[:framework][:files],
+      before_command: config[:runner][:before_command],
+      concurrency: config[:runner][:concurrency].to_i,
     )
-    client  = Baleen::Client.new(config[:baleen_server], config[:port])
+    client  = Baleen::Client.new(config[:base][:baleen_server], config[:base][:port])
     job     = Baleen::Job.new(client, task)
     job.start
   end
@@ -25,7 +25,7 @@ class BaleenCommand < Thor
   include BaleenCommandHelper
 
   desc "default", "Running baleen job according to config file"
-  option :config, :default => "#{ENV["HOME"]}/.baleen.yml"
+  option :config, :default => "#{ENV["PWD"]}/baleen.yml"
   def default
     yaml = options[:config]
 
@@ -36,19 +36,19 @@ class BaleenCommand < Thor
 
     cfg = Baleen::Serializable.symbolize_keys(YAML.load_file(yaml))
 
-    if Baleen::Validator::Validator.check(cfg)
-      cfg[:baleen_server]  ||= default_baleen_server
-      cfg[:port]           ||= default_port
-      cfg[:before_command] ||= default_before_command
-      cfg[:concurrency]    ||= default_concurrency
-      cfg[:work_dir]       ||= default_work_dir
-      cfg[:image]
+    if Baleen::Config::Validator.check(cfg)
+      cfg[:base][:baleen_server]
+      cfg[:base][:port]             ||= default_port
+      cfg[:runner][:before_command] ||= default_before_command
+      cfg[:runner][:concurrency]    ||= default_concurrency
+      cfg[:runner][:work_dir]       ||= default_work_dir
+      cfg[:runner][:image]
 
-      case cfg[:framework]
+      case cfg[:framework][:type]
         when "cucumber"
-          cfg[:files] = cfg[:features] || default_features
+          cfg[:framework][:files] = cfg[:framework][:features] || default_features
         else
-          raise "Passed unknown framework from config yml: #{cfg[:framework]}"
+          raise "Passed unknown framework from config yml: #{cfg[:framework][:type]}"
       end
 
       job_start(cfg)
@@ -57,7 +57,7 @@ class BaleenCommand < Thor
   default_task :default
 
   desc "cucumber", "Running cucumber features"
-  option :baleen_server
+  option :baleen_server, :required => true
   option :port
   option :before_command
   option :concurrency
@@ -66,15 +66,22 @@ class BaleenCommand < Thor
   option :image, :required => true
 
   def cucumber
-    cfg = {}
-    cfg[:framework]      = "cucumber"
-    cfg[:port]           = options[:port]           || default_port
-    cfg[:baleen_server]  = options[:baleen_server]  || default_baleen_server
-    cfg[:before_command] = options[:before_command] || default_before_command
-    cfg[:concurrency]    = options[:concurrency]    || default_concurrency
-    cfg[:files]          = options[:features]       || default_features
-    cfg[:work_dir]       = options[:work_dir]       || default_work_dir
-    cfg[:image]          = options[:image]
+    cfg = {
+      base: {
+        baleen_server: options[:baleen_server],
+        port: options[:port]                    || default_port
+      },
+      runner: {
+        before_command: options[:before_command] || default_before_command,
+        concurrency: options[:concurrency]       || default_concurrency,
+        work_dir: options[:work_dir]             || default_work_dir,
+        image: options[:image],
+      },
+      framework: {
+        files: options[:features] || default_features,
+        type: "cucumber"
+      }
+    }
 
     job_start(cfg)
   end

@@ -5,10 +5,6 @@ module Baleen
       5533
     end
 
-    def default_baleen_server
-      "127.0.0.1"
-    end
-
     def default_concurrency
       2
     end

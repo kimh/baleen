@@ -11,7 +11,7 @@ require 'baleen/runner'
 require 'baleen/git_hook'
 require 'baleen/connection'
 require 'baleen/message/message'
-require 'baleen/validator'
+require 'baleen/config'
 
 module Baleen
   # Your code goes here...

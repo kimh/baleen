@@ -4,10 +4,6 @@ include Baleen::Task
 
 describe Baleen::Task do
 
-  before :all do
-    #@docker_client = DockerClient.new
-  end
-
   describe Generic do
     it "executes command" do
       string = "OK"
