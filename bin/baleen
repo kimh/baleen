@@ -24,6 +24,17 @@ class BaleenCommand < Thor
   include Baleen::Default
   include BaleenCommandHelper
 
+  desc "project", "Running baleen by specifying project"
+  option :project
+  def project
+    task = Baleen::Task::Project.new(
+      :project => options[:project]
+    )
+    client  = Baleen::Client.new("127.0.0.1", 5533)
+    job     = Baleen::Job.new(client, task)
+    job.start
+  end
+
   desc "default", "Running baleen job according to config file"
   option :config, :default => "#{ENV["PWD"]}/baleen.yml"
   def default
