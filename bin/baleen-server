@@ -18,15 +18,19 @@ def running?
   end
 end
 
+
 class BaleenServerCli < Thor
 
+  include Baleen::Default
+
   desc "start", "Start Baleen server"
-  option :docker_host,   :default => "127.0.0.1", :desc => "Host of Docker"
-  option :docker_port,   :default => 4243, :desc => "Port that Docker is listening to"
-  option :port,          :default => 5533, :desc => "Port that baleen server is listening to"
-  option :debug,         :type    => :boolean, :desc => "When specified, baleen-server prints out debug message to console"
-  option :git_hook,      :type    => :boolean, :desc => "When specified, baleen-server will receive github post-receive"
-  option :git_hook_port, :default => 4567, :desc => "Port to accept github post-receive"
+  option :docker_host,   :desc => "Host of Docker"
+  option :docker_port,   :desc => "Port that Docker is listening to"
+  option :port,          :desc => "Port that baleen server is listening to"
+  option :debug,         :desc => "When specified, baleen-server prints out debug message to console"
+  option :git_hook,      :desc => "When specified, baleen-server will receive github post-receive"
+  option :git_hook_port, :desc => "Port to accept github post-receive"
+  option :config,        :desc => "Path to baleen.yml"
   def start
     if running?
       colored_error "baleen-server is already running"
@@ -34,12 +38,13 @@ class BaleenServerCli < Thor
       exit
     end
 
-    docker_host   = options[:docker_host]
-    docker_port   = options[:docker_port]
-    port          = options[:port]
-    debug         = options[:debug]
+    docker_host   = options[:docker_host]   || default_docker_host
+    docker_port   = options[:docker_port]   || default_docker_port
+    port          = options[:port]          || default_port
+    config        = options[:git_hook_port] || default_config
+    git_hook_port = options[:git_hook_port] || default_git_hook_port
     git_hook      = options[:git_hook]
-    git_hook_port = options[:git_hook_port]
+    debug         = options[:debug]
 
     colored_info "Starting baleen-server..."
     colored_info "  Listening on: #{port}"
@@ -47,7 +52,7 @@ class BaleenServerCli < Thor
 
     Process.daemon(true, debug)
     Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
-    Baleen::Server.new(docker_host: docker_host, docker_port: docker_port, port: port)
+    Baleen::Server.new(docker_host, docker_port, port, config)
 
     # Prevent main thread from exiting for Celluloid actors to continue running
     # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions

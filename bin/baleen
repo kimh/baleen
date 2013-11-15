@@ -3,7 +3,7 @@
 require "thor"
 require "baleen"
 
-module BaleenCommandHelper
+module BaleenCliHelper
   def job_start(config)
     klass = config[:framework][:type].to_s.capitalize
     task = Baleen::Task.const_get(klass).new(
@@ -19,84 +19,77 @@ module BaleenCommandHelper
   end
 end
 
-class BaleenCommand < Thor
+module BaleenCLI
+  class Project < Thor
 
-  include Baleen::Default
-  include BaleenCommandHelper
+    include Baleen::Default
 
-  desc "project", "Running baleen by specifying project"
-  option :project
-  def project
-    task = Baleen::Task::Project.new(
-      :project => options[:project]
-    )
-    client  = Baleen::Client.new("127.0.0.1", 5533)
-    job     = Baleen::Job.new(client, task)
-    job.start
-  end
+    option :baleen_server
+    option :port
 
-  desc "default", "Running baleen job according to config file"
-  option :config, :default => "#{ENV["PWD"]}/baleen.yml"
-  def default
-    yaml = options[:config]
-
-    unless File.exist?(yaml)
-      colored_error "#{yaml} does not exist. Please make sure file path is correct"
-      exit 1
+    desc "start", "Running baleen project"
+    def start(name)
+      baleen_server = ENV["baleen_server"] || options[:baleen_server] || default_baleen_server
+      port = ENV["baleen_port"] || options[:port] || default_port
+      task = Baleen::Task::Project.new(
+        :project => name
+      )
+      client  = Baleen::Client.new(baleen_server, port)
+      job     = Baleen::Job.new(client, task)
+      job.start
     end
+    default_task :start
 
-    cfg = Baleen::Serializable.symbolize_keys(YAML.load_file(yaml))
-
-    if Baleen::Config::Validator.check(cfg)
-      cfg[:base][:baleen_server]
-      cfg[:base][:port]             ||= default_port
-      cfg[:runner][:before_command] ||= default_before_command
-      cfg[:runner][:concurrency]    ||= default_concurrency
-      cfg[:runner][:work_dir]       ||= default_work_dir
-      cfg[:runner][:image]
-
-      case cfg[:framework][:type]
-        when "cucumber"
-          cfg[:framework][:files] = cfg[:framework][:features] || default_features
-        else
-          raise "Passed unknown framework from config yml: #{cfg[:framework][:type]}"
-      end
-
-      job_start(cfg)
+    desc "list", "List baleen projects registered at baleen-server"
+    def list
+      #TODO
     end
   end
-  default_task :default
 
-  desc "cucumber", "Running cucumber features"
-  option :baleen_server, :required => true
-  option :port
-  option :before_command
-  option :concurrency
-  option :work_dir
-  option :features
-  option :image, :required => true
+  class Cucumber < Thor
 
-  def cucumber
-    cfg = {
-      base: {
-        baleen_server: options[:baleen_server],
-        port: options[:port]                    || default_port
-      },
-      runner: {
-        before_command: options[:before_command] || default_before_command,
-        concurrency: options[:concurrency]       || default_concurrency,
-        work_dir: options[:work_dir]             || default_work_dir,
-        image: options[:image],
-      },
-      framework: {
-        files: options[:features] || default_features,
-        type: "cucumber"
-      }
-    }
+    include Baleen::Default
+    include BaleenCliHelper
 
-    job_start(cfg)
+    option :baleen_server, :required => true
+    option :port
+    option :before_command
+    option :concurrency
+    option :work_dir
+    option :features
+    option :image, :required => true
+
+    desc "cucumber", "Running cucumber project from options"
+    def cucumber
+     cfg = {
+       base: {
+         baleen_server: options[:baleen_server],
+         port: options[:port]                    || default_port
+       },
+       runner: {
+         before_command: options[:before_command] || default_before_command,
+         concurrency: options[:concurrency]       || default_concurrency,
+         work_dir: options[:work_dir]             || default_work_dir,
+         image: options[:image],
+       },
+       framework: {
+         files: options[:features] || default_features,
+         type: "cucumber"
+       }
+     }
+
+     job_start(cfg)
+    end
   end
 
+  class Main < Thor
+
+    desc "project", "Project"
+    subcommand "project", Project
+
+    desc "cucumber", "Running cucumber project from options"
+    subcommand "cucumber", Cucumber
+  end
 end
 
-BaleenCommand.start
+BaleenCLI::Main.start

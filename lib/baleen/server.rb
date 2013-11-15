@@ -10,18 +10,26 @@ module Baleen
     include Celluloid::IO
     finalizer :shutdown
 
-    def initialize(docker_host: "127.0.0.1", docker_port: 4243, port: 5533)
+    def initialize(docker_host, docker_port, port, config)
       Docker.url = "http://#{docker_host}:#{docker_port}"
       @server = TCPServer.new("0.0.0.0", port)
-      load_project
+      load_project(config)
       async.run
     end
 
-    def load_project
+    def load_project(config)
       @projects = {}
-      yaml = Baleen::Serializable.symbolize_keys(YAML.load_file("/Users/kimh/.baleen.yml"))
-      yaml.each do |project, values|
-        @projects[project] = Baleen::Project::Cucumber.new(values)
+      if File.exists?(config)
+        yaml = Baleen::Serializable.symbolize_keys(YAML.load_file(config))
+      else
+        colored_error "Config file not found"
+        raise Baleen::Error::ConfigMissing
+      end
+
+      yaml.each do |project, cfg|
+        if Baleen::Config::Validator.check(cfg)
+          @projects[project] = Baleen::Project::Cucumber.new(cfg)
+        end
       end
     end
 
@@ -60,10 +68,15 @@ module Baleen
       conn = Connection.new(socket)
       request = parse_request(json_request)
 
-      if request.is_a? Baleen::Task::Project
-        task = find_project(request.project).task
-      else
-        task = request # request itself is a task
+      begin
+        if request.is_a? Baleen::Task::Project
+          task = find_project(request.project, conn).task
+        else
+          task = request # request itself is a task
+        end
+      rescue Baleen::Error::ProjectNotFound
+        conn.close
+        return
       end
 
       RunnerManager.new(conn, task).run do |response|
@@ -75,8 +88,15 @@ module Baleen
       Serializable.deserialize(request)
     end
 
-    def find_project(name)
-      @projects[name.to_sym] || raise("No project found: #{name}")
+    def find_project(name, conn)
+      project = @projects[name.to_sym]
+
+      unless project
+        conn.notify_error("Cannot find #{name} project")
+        raise Baleen::Error::ProjectNotFound
+      end
+
+      project
     end
   end
 end
