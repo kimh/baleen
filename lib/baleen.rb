@@ -11,7 +11,6 @@ require 'baleen/runner'
 require 'baleen/git_hook'
 require 'baleen/connection'
 require 'baleen/message/message'
-require 'baleen/config'
 require 'baleen/config_validator'
 require 'baleen/project'
 
