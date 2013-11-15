@@ -42,6 +42,17 @@ module Baleen
         end
         @config = cfg
       end
+
+      def task
+        klass = @config[:framework][:type].to_s.capitalize
+        Baleen::Task.const_get(klass).new(
+          image: config[:runner][:image],
+          work_dir: config[:runner][:work_dir],
+          files: config[:framework][:files],
+          before_command: config[:runner][:before_command],
+          concurrency: config[:runner][:concurrency].to_i,
+        )
+      end
     end
 
     class Common

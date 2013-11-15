@@ -50,37 +50,33 @@ module Baleen
     end
 
     def handle_request(socket)
-      json_task = socket.gets
+      json_request = socket.gets
 
-      if json_task.nil?
+      if json_request.nil?
         socket.close
         return
       end
 
       conn = Connection.new(socket)
-      task = parse_request(json_task)
+      request = parse_request(json_request)
 
-      if task.is_a? Baleen::Task::Project
-        project = @projects[task.project.to_sym]
-        config = project.config
-        klass = config[:framework][:type].capitalize
-        task = Baleen::Task.const_get(klass).new(
-          image: config[:runner][:image],
-          work_dir: config[:runner][:work_dir],
-          files: config[:framework][:files],
-          before_command: config[:runner][:before_command],
-          concurrency: config[:runner][:concurrency].to_i,
-        )
+      if request.is_a? Baleen::Task::Project
+        task = find_project(request.project).task
+      else
+        task = request # request itself is a task
       end
 
-      manager = RunnerManager.new(conn, task)
-      manager.run do |response|
+      RunnerManager.new(conn, task).run do |response|
         conn.respond(response)
       end
     end
 
-    def parse_request(json_task)
-      Serializable.deserialize(json_task)
+    def parse_request(request)
+      Serializable.deserialize(request)
+    end
+
+    def find_project(name)
+      @projects[name.to_sym] || raise("No project found: #{name}")
     end
   end
 end
