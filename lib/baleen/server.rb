@@ -75,7 +75,6 @@ module Baleen
           task = request # request itself is a task
         end
       rescue Baleen::Error::ProjectNotFound
-        #conn.close
         return
       end
 
@@ -92,8 +91,7 @@ module Baleen
       project = @projects[name.to_sym]
 
       unless project
-        conn.notify_error("Cannot find #{name} project")
-        conn.notify_exception("Exception HAPPENS")
+        conn.notify_exception("No project found: #{name}")
         raise Baleen::Error::ProjectNotFound
       end
 
