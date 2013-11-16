@@ -17,13 +17,8 @@ module Baleen
 
     def wait_response
       loop {
-        if response = handle_response(@socket.gets)
-          if response.kind_of? Message::Base
-            response.print_message
-          else
-            return response
-          end
-        end
+        response = handle_response(@socket.gets)
+        return response if response
       }
     end
 
@@ -34,12 +29,22 @@ module Baleen
     rescue IOError; nil
     end
 
-    def handle_response(response)
-      if response.nil?
+    def handle_response(msg)
+      if msg.nil?
         raise RuntimeError, 'Connection closed by server'
       end
 
-      Serializable.deserialize(response)
+      response = Serializable.deserialize(msg)
+
+      if response.is_a? Message::Base
+        response.print_message
+      end
+
+      if response.terminate?
+        response
+      else
+        nil
+      end
     end
 
   end

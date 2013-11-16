@@ -8,6 +8,13 @@ module Baleen
       @end_time   = end_time
     end
 
+    def report_result
+      if @result
+        summary
+        detail
+      end
+    end
+
     def summary
       tests_result = pass_all? ? "Pass".blue : "Fail".red
       time = run_time

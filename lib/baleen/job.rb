@@ -13,16 +13,18 @@ module Baleen
       start_time = Time.now
       @client.request(@msg.params)
       @response = @client.wait_response
-      end_time = Time.now
-      show_results(start_time, end_time)
+
+      unless @response.nil?
+        end_time = Time.now
+        show_results(start_time, end_time)
+      end
     end
 
     private
 
     def show_results(s_time, e_time)
       display = ResultDisplay.new(@response.results, s_time, e_time)
-      display.summary
-      display.detail
+      display.report_result
     end
 
   end

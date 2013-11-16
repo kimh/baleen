@@ -10,6 +10,10 @@ module Baleen
         @params[:level]   = opt[:level]
       end
 
+      def terminate?
+        false
+      end
+
       def print_message
         case level
           when "info"

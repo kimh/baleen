@@ -40,6 +40,14 @@ module Baleen
         @params[:results]
       end
 
+      def respond
+        nil
+      end
+
+      def terminate?
+        true
+      end
+
     end
   end
 end

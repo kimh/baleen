@@ -11,6 +11,14 @@ module Baleen
         @params[:klass] = self.class.to_s
       end
 
+      def results
+        nil
+      end
+
+      def terminate?
+        false
+      end
+
     end
   end
 end

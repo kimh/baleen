@@ -24,6 +24,11 @@ module Baleen
       @socket.close
     end
 
+    def notify_exception(msg)
+      response = Baleen::Message::Exception.new({:message => msg})
+      write(response.to_json)
+    end
+
     private
 
     def notify_to_client(msg, level)
