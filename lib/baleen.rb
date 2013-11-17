@@ -13,6 +13,7 @@ require 'baleen/connection'
 require 'baleen/message/message'
 require 'baleen/config_validator'
 require 'baleen/project'
+require 'baleen/builder'
 
 module Baleen
   # Your code goes here...

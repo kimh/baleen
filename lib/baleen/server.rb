@@ -13,24 +13,12 @@ module Baleen
     def initialize(docker_host, docker_port, port, config)
       Docker.url = "http://#{docker_host}:#{docker_port}"
       @server = TCPServer.new("0.0.0.0", port)
-      load_project(config)
+      Baleen::Project.load_project(config)
+
+      builder = Baleen::Builder.new(:nice)
+      builder.build
+
       async.run
-    end
-
-    def load_project(config)
-      @projects = {}
-      if File.exists?(config)
-        yaml = Baleen::Serializable.symbolize_keys(YAML.load_file(config))
-      else
-        colored_error "Config file not found"
-        raise Baleen::Error::ConfigMissing
-      end
-
-      yaml.each do |project, cfg|
-        if Baleen::Config::Validator.check(cfg)
-          @projects[project] = Baleen::Project::Cucumber.new(cfg)
-        end
-      end
     end
 
     def run
@@ -88,7 +76,7 @@ module Baleen
     end
 
     def find_project(name, conn)
-      project = @projects[name.to_sym]
+      project = Baleen::Project.projects(name.to_sym)
 
       unless project
         conn.notify_exception("No project found: #{name}")

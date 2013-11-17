@@ -7,7 +7,7 @@ module Baleen
       include Baleen::Serializable
 
       def self.check(config)
-        sections = [:runner, :framework]
+        sections = [:runner, :framework, :github]
 
         sections.each do |sect|
           validator = Baleen::Config.const_get(sect.to_s.capitalize)
@@ -93,6 +93,20 @@ module Baleen
         case @config[:type]
           when "cucumber"; :features
         end
+      end
+    end
+
+    class Github < Common
+      def mandatory_attributes
+        [
+          :url,
+          :repo,
+        ]
+      end
+
+      def optional_attributes
+        [
+        ]
       end
     end
   end
