@@ -28,13 +28,13 @@ module Baleen
       project = Baleen::Project.find_project_by_github({repo: repo, branch: branch})
 
       if project
-        async.run(project)
+        async.ci_run(project)
       end
     end
 
     private
 
-    def run(project)
+    def ci_run(project)
       builder = Baleen::Builder.new(project, Docker.url)
       builder.build
 
