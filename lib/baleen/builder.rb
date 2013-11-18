@@ -5,8 +5,9 @@ require "rubygems/package"
 module Baleen
   class Builder
 
-    def initialize(project)
+    def initialize(project, docker_url)
       @project = project
+      @docker_url = docker_url
     end
 
     def build
@@ -15,7 +16,7 @@ module Baleen
       tmp_dir    = "tmp/build"
       dir        = File.join(tmp_dir, repo)
       output     = StringIO.new
-      connection = Excon.new('http://192.168.56.4:4243')
+      connection = Docker::Connection.new(docker_url, {})
 
       FileUtils.mkdir_p(tmp_dir)
 
@@ -38,7 +39,7 @@ module Baleen
       end
 
       tar = output.tap(&:rewind).string
-      connection.post(:path => '/build', :body => tar)
+      connection.post('/build', {}, :body => tar)
     end
   end
 end

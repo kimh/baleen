@@ -23,9 +23,12 @@ module Baleen
       payload = JSON.parse(params[:payload])
       repo    = payload["repository"]["name"]
       branch  = payload["ref"].split("/").last
-      project = Baleen::Project.find_project_by_github({repo: repo})
-      builder = Baleen::Builder.new(project)
-      builder.build
+      project = Baleen::Project.find_project_by_github({repo: repo, branch: branch})
+
+      if project
+        builder = Baleen::Builder.new(project, Docker.url)
+        builder.build
+      end
     end
   end
 end
