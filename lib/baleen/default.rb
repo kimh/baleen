@@ -33,7 +33,7 @@ module Baleen
       4243
     end
 
-    def default_git_hook_port
+    def default_ci_port
       4567
     end
 

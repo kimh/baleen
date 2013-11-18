@@ -28,8 +28,8 @@ class BaleenServerCli < Thor
   option :docker_port,   :desc => "Port that Docker is listening to"
   option :port,          :desc => "Port that baleen server is listening to"
   option :debug,         :desc => "When specified, baleen-server prints out debug message to console"
-  option :git_hook,      :desc => "When specified, baleen-server will receive github post-receive"
-  option :git_hook_port, :desc => "Port to accept github post-receive"
+  option :ci,            :desc => "When specified, baleen-server will receive github post-receive"
+  option :ci_port,       :desc => "Port to accept github post-receive"
   option :config,        :desc => "Path to baleen.yml"
   def start
     if running?
@@ -42,8 +42,8 @@ class BaleenServerCli < Thor
     docker_port   = options[:docker_port]   || default_docker_port
     port          = options[:port]          || default_port
     config        = options[:config]        || default_config
-    git_hook_port = options[:git_hook_port] || default_git_hook_port
-    git_hook      = options[:git_hook]
+    ci_port       = options[:ci_port]       || default_ci_port
+    ci            = options[:ci]
     debug         = options[:debug]
 
     hl_info "Starting baleen-server..."
@@ -52,7 +52,7 @@ class BaleenServerCli < Thor
 
     Process.daemon(true, debug)
     Baleen::Server.new(docker_host, docker_port, port, config)
-    Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
+    Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port) if ci
 
     # Prevent main thread from exiting for Celluloid actors to continue running
     # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions

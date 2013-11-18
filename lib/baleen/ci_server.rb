@@ -3,7 +3,7 @@ require 'docker'
 require 'baleen'
 
 module Baleen
-  class GitHook < Sinatra::Base
+  class CiServer < Sinatra::Base
 
     include Celluloid::IO
     extend Baleen::Default
