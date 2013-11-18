@@ -53,8 +53,8 @@ module Baleen
         find_project(name.to_sym, nil)
       end
 
-      def self.find_project_by_github(params)
-        find_project(nil, :github, params)
+      def self.find_project_by_ci(params)
+        find_project(nil, :ci, params)
       end
 
       def self.find_project_by_runner(params)
@@ -86,8 +86,8 @@ module Baleen
         @config = cfg
       end
 
-      def github
-        @config[:github]
+      def ci
+        @config[:ci]
       end
 
       def task

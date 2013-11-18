@@ -7,7 +7,7 @@ module Baleen
       include Baleen::Serializable
 
       def self.check(config)
-        sections = [:runner, :framework, :github]
+        sections = [:runner, :framework, :ci]
 
         sections.each do |sect|
           validator = Baleen::Config.const_get(sect.to_s.capitalize)
@@ -21,7 +21,7 @@ module Baleen
     class Common
       def initialize(yaml)
         @section = self.class.to_s.split("::").last.downcase.to_sym
-        @config = yaml[@section]
+        @config  = yaml[@section]
       end
 
       def attributes
@@ -31,7 +31,7 @@ module Baleen
       def validate
         unless @config
           hl_error "Your baleen.yml is missing the following mandatory section"
-          hl_warn " :#{@section}"
+          hl_warn  " :#{@section}"
           raise Baleen::Error::Validator::MandatoryMissing
         end
 
@@ -96,7 +96,7 @@ module Baleen
       end
     end
 
-    class Github < Common
+    class Ci < Common
       def mandatory_attributes
         [
           :url,
@@ -107,6 +107,7 @@ module Baleen
       def optional_attributes
         [
           :branch,
+          :build,
         ]
       end
     end

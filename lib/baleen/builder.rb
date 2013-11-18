@@ -11,8 +11,8 @@ module Baleen
     end
 
     def build
-      url        = @project.github[:url]
-      repo       = @project.github[:repo]
+      url        = @project.ci[:url]
+      repo       = @project.ci[:repo]
       tmp_dir    = "tmp/build"
       dir        = File.join(tmp_dir, repo)
       output     = StringIO.new

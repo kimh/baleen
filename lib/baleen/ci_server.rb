@@ -25,7 +25,7 @@ module Baleen
       payload = JSON.parse(params[:payload])
       repo    = payload["repository"]["name"]
       branch  = payload["ref"].split("/").last
-      project = Baleen::Project.find_project_by_github({repo: repo, branch: branch})
+      project = Baleen::Project.find_project_by_ci({repo: repo, branch: branch})
 
       if project
         async.ci_run(project)
@@ -35,8 +35,10 @@ module Baleen
     private
 
     def ci_run(project)
-      builder = Baleen::Builder.new(project, Docker.url)
-      builder.build
+      if project.ci[:build]
+        builder = Baleen::Builder.new(project, Docker.url)
+        builder.build
+      end
 
       RunnerManager.new(nil, project.task).run do |response|
         puts "------ DEBUG START -------"
