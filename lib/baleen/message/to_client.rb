@@ -1,4 +1,4 @@
-require 'baleen/utils/colored_puts'
+require 'baleen/utils/highlighter'
 
 module Baleen
   module Message
@@ -17,14 +17,14 @@ module Baleen
       def print_message
         case level
           when "info"
-            colored_info message
+            hl_info message
           when "warn"
-            colored_warn message
+            hl_warn message
           when "error"
-            colored_error message
+            hl_error message
           else
-            colored_error "Unknown message level"
-            colored_error inspect
+            hl_error "Unknown message level"
+            hl_error inspect
         end
       end
     end

@@ -4,7 +4,7 @@ require File.expand_path('../../lib/baleen.rb', __FILE__)
 
 RSpec.configure do |config|
   unless Docker.url = ENV["docker_url"]
-    colored_error "You have to set 'docker_url' environment variable before running test
+    hl_error "You have to set 'docker_url' environment variable before running test
     Ex: export docker_url=\"http://192.168.56.4:4243\""
     exit 1
   end

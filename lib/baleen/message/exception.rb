@@ -1,4 +1,4 @@
-require 'baleen/utils/colored_puts'
+require 'baleen/utils/highlighter'
 
 module Baleen
   module Message
@@ -14,7 +14,7 @@ module Baleen
       end
 
       def print_message
-        colored_error message
+        hl_error message
       end
     end
   end

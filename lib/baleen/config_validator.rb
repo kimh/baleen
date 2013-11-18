@@ -30,8 +30,8 @@ module Baleen
 
       def validate
         unless @config
-          colored_error "Your baleen.yml is missing the following mandatory section"
-          colored_warn " :#{@section}"
+          hl_error "Your baleen.yml is missing the following mandatory section"
+          hl_warn " :#{@section}"
           raise Baleen::Error::Validator::MandatoryMissing
         end
 
@@ -39,15 +39,15 @@ module Baleen
         @config.keys.each do |k|
           mandatory.delete k
           unless attributes.include? k
-            colored_error "Your baleen.yml has the following invalid attribute at :#{@section} section"
-            colored_warn " :#{k}"
+            hl_error "Your baleen.yml has the following invalid attribute at :#{@section} section"
+            hl_warn " :#{k}"
             return false
           end
         end
 
         unless mandatory.empty?
-          colored_error "Following attributes are mandatory at :#{@section} section of baleen.yml"
-          mandatory.each {|m| colored_warn " :#{m}"}
+          hl_error "Following attributes are mandatory at :#{@section} section of baleen.yml"
+          mandatory.each {|m| hl_warn " :#{m}"}
           raise Baleen::Error::Validator::MandatoryMissing
         end
 

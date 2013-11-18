@@ -25,7 +25,7 @@ module Baleen
       begin
         @server.close
       rescue IOError
-        colored_info "Shutting down baleen-server..."
+        hl_info "Shutting down baleen-server..."
       end
     end
 
@@ -72,7 +72,7 @@ module Baleen
     end
 
     def find_project(name, conn)
-      project = Baleen::Project.find_project(name.to_sym)
+      project = Baleen::Project.find_project_by_name(name.to_sym)
 
       unless project
         conn.notify_exception("No project found: #{name}")

@@ -33,8 +33,8 @@ class BaleenServerCli < Thor
   option :config,        :desc => "Path to baleen.yml"
   def start
     if running?
-      colored_error "baleen-server is already running"
-      colored_error "Exiting..."
+      hl_error "baleen-server is already running"
+      hl_error "Exiting..."
       exit
     end
 
@@ -46,9 +46,9 @@ class BaleenServerCli < Thor
     git_hook      = options[:git_hook]
     debug         = options[:debug]
 
-    colored_info "Starting baleen-server..."
-    colored_info "  Listening on: #{port}"
-    colored_info "  Docker API: http://#{docker_host}:#{docker_port}"
+    hl_info "Starting baleen-server..."
+    hl_info "  Listening on: #{port}"
+    hl_info "  Docker API: http://#{docker_host}:#{docker_port}"
 
     Process.daemon(true, debug)
     Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
@@ -62,10 +62,10 @@ class BaleenServerCli < Thor
   desc "stop", "Stop Baleen server"
   def stop
     if running?
-      colored_warn "Stopping Baleen server..."
+      hl_warn "Stopping Baleen server..."
       `kill -9 #{pid.first}`
     else
-      colored_warn "baleen-server is not running"
+      hl_warn "baleen-server is not running"
     end
   end
 

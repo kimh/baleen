@@ -17,7 +17,7 @@ module Baleen
         if File.exists?(config)
           yaml = Baleen::Serializable.symbolize_keys(YAML.load_file(config))
         else
-          colored_error "Config file not found"
+          hl_error "Config file not found"
           raise Baleen::Error::ConfigMissing
         end
 

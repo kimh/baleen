@@ -1,4 +1,4 @@
-require 'baleen/utils/colored_puts'
+require 'baleen/utils/highlighter'
 
 module Baleen
   module Message

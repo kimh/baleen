@@ -1,6 +1,6 @@
 require 'celluloid/io'
 require 'celluloid/autostart'
-require 'baleen/utils/colored_puts'
+require 'baleen/utils/highlighter'
 
 module Baleen
   class Client
@@ -24,7 +24,7 @@ module Baleen
 
     def close
       @socket.close if @socket
-      colored_warn "Connection closed"
+      hl_warn "Connection closed"
 
     rescue IOError; nil
     end
