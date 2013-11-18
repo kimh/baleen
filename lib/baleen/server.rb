@@ -53,7 +53,7 @@ module Baleen
       request = parse_request(json_request)
 
       begin
-        if request.is_a? Baleen::Task::Project
+        if request.is_a? Baleen::Task::RunProject
           task = find_project(request.project, conn).task
         else
           task = request # request itself is a task

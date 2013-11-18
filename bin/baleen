@@ -31,7 +31,7 @@ module BaleenCLI
     def start(name)
       baleen_server = ENV["baleen_server"] || options[:baleen_server] || default_baleen_server
       port = ENV["baleen_port"] || options[:port] || default_port
-      task = Baleen::Task::Project.new(
+      task = Baleen::Task::RunProject.new(
         :project => name
       )
       client  = Baleen::Client.new(baleen_server, port)

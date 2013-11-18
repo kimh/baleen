@@ -5,6 +5,7 @@ require 'baleen'
 module Baleen
   class GitHook < Sinatra::Base
 
+    include Celluloid::IO
     extend Baleen::Default
 
     def self.run!(params={})
@@ -27,8 +28,22 @@ module Baleen
       project = Baleen::Project.find_project_by_github({repo: repo, branch: branch})
 
       if project
-        builder = Baleen::Builder.new(project, Docker.url)
-        builder.build
+        async.run(project)
+      end
+    end
+
+    private
+
+    def run(project)
+      builder = Baleen::Builder.new(project, Docker.url)
+      builder.build
+
+      RunnerManager.new(nil, project.task).run do |response|
+        puts "------ DEBUG START -------"
+          require "pp"
+          load "/Users/kimh/.rvm/gems/ruby-1.9.3-p286@nice/gems/awesome_print-1.2.0/lib/awesome_print.rb"
+          ap response
+        puts "-------DEBUG END   -------"
       end
     end
   end

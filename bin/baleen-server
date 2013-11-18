@@ -41,7 +41,7 @@ class BaleenServerCli < Thor
     docker_host   = options[:docker_host]   || default_docker_host
     docker_port   = options[:docker_port]   || default_docker_port
     port          = options[:port]          || default_port
-    config        = options[:git_hook_port] || default_config
+    config        = options[:config]        || default_config
     git_hook_port = options[:git_hook_port] || default_git_hook_port
     git_hook      = options[:git_hook]
     debug         = options[:debug]
@@ -51,8 +51,8 @@ class BaleenServerCli < Thor
     hl_info "  Docker API: http://#{docker_host}:#{docker_port}"
 
     Process.daemon(true, debug)
-    Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
     Baleen::Server.new(docker_host, docker_port, port, config)
+    Baleen::GitHook.run!(docker_host: docker_host, docker_port: docker_port, port: git_hook_port) if git_hook
 
     # Prevent main thread from exiting for Celluloid actors to continue running
     # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions

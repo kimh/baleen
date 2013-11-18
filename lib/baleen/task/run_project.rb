@@ -2,7 +2,7 @@ require "baleen/task/task"
 
 module Baleen
   module Task
-    class Project < Baleen::Task::Base
+    class RunProject < Baleen::Task::Base
 
       def initialize(opt)
         super()

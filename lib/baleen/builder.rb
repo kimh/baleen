@@ -16,7 +16,7 @@ module Baleen
       tmp_dir    = "tmp/build"
       dir        = File.join(tmp_dir, repo)
       output     = StringIO.new
-      connection = Docker::Connection.new(docker_url, {})
+      connection = Docker::Connection.new(@docker_url, {})
 
       FileUtils.mkdir_p(tmp_dir)
 
