@@ -41,5 +41,9 @@ module Baleen
       File.join(ENV["HOME"], "baleen.yml")
     end
 
+    def default_branch
+      "master"
+    end
+
   end
 end

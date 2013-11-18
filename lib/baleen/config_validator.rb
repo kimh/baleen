@@ -106,6 +106,7 @@ module Baleen
 
       def optional_attributes
         [
+          :branch,
         ]
       end
     end

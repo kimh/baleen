@@ -14,10 +14,6 @@ module Baleen
       Docker.url = "http://#{docker_host}:#{docker_port}"
       @server = TCPServer.new("0.0.0.0", port)
       Baleen::Project.load_project(config)
-
-      builder = Baleen::Builder.new(:nice)
-      builder.build
-
       async.run
     end
 
@@ -76,7 +72,7 @@ module Baleen
     end
 
     def find_project(name, conn)
-      project = Baleen::Project.projects(name.to_sym)
+      project = Baleen::Project.find_project(name.to_sym)
 
       unless project
         conn.notify_exception("No project found: #{name}")

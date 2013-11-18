@@ -5,8 +5,12 @@ module Baleen
 
       attr_reader :config
 
-      def self.projects(name)
-        @@projects[name.to_sym]
+      def self.projects(name=nil)
+        if name
+          @@projects[name.to_sym]
+        else
+          @@projects
+        end
       end
 
       def self.load_project(config)
@@ -22,6 +26,43 @@ module Baleen
             @@projects[project] = self.new(cfg)
           end
         end
+      end
+
+      def self.find_project(name, attribute, params={})
+        projects = Baleen::Project.projects
+
+        if name && attribute
+          raise "You cannot specify name and attribute at the same time"
+        elsif name
+          return projects[name.to_sym]
+        elsif attribute
+          projects.each do |project, attributes|
+            attributes.config.each do |attr, values|
+              if attr == attribute
+                params.each do |_k, _v|
+                  return nil unless values[_k] == _v
+                end
+                return projects[project]
+              end
+            end
+          end
+        end
+      end
+
+      def self.find_project_by_name(name)
+        find_project(name.to_sym, nil)
+      end
+
+      def self.find_project_by_github(params)
+        find_project(nil, :github, params)
+      end
+
+      def self.find_project_by_runner(params)
+        find_project(nil, :runner, params)
+      end
+
+      def self.find_project_by_framework(params)
+        find_project(nil, :framework, params)
       end
 
       def initialize(cfg)

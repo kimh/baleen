@@ -6,16 +6,15 @@ module Baleen
   class Builder
 
     def initialize(project)
-      @project = project.to_sym
+      @project = project
     end
 
     def build
-      project = Baleen::Project.projects(:nice)
-      url = project.github[:url]
-      repo = project.github[:repo]
-      tmp_dir = "tmp/build"
-      dir = File.join(tmp_dir, repo)
-      output = StringIO.new
+      url        = @project.github[:url]
+      repo       = @project.github[:repo]
+      tmp_dir    = "tmp/build"
+      dir        = File.join(tmp_dir, repo)
+      output     = StringIO.new
       connection = Excon.new('http://192.168.56.4:4243')
 
       FileUtils.mkdir_p(tmp_dir)
