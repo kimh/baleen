@@ -9,6 +9,10 @@ module Baleen
       5533
     end
 
+    def default_dir
+      "./"
+    end
+
     def default_concurrency
       2
     end

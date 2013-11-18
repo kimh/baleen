@@ -10,10 +10,15 @@ module Baleen
     include Celluloid::IO
     finalizer :shutdown
 
-    def initialize(docker_host, docker_port, port, config)
+    def self.dir
+      @@dir
+    end
+
+    def initialize(docker_host, docker_port, port, config, dir)
       Docker.url = "http://#{docker_host}:#{docker_port}"
-      @server = TCPServer.new("0.0.0.0", port)
       Baleen::Project.load_project(config)
+      @server = TCPServer.new("0.0.0.0", port)
+      @@dir   = FileUtils.mkdir_p("#{dir}/baleen").first
       async.run
     end
 

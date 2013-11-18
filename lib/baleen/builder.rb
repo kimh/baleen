@@ -13,7 +13,7 @@ module Baleen
     def build
       url        = @project.ci[:url]
       repo       = @project.ci[:repo]
-      tmp_dir    = "tmp/build"
+      tmp_dir    = File.join(Server.dir, "tmp/build")
       dir        = File.join(tmp_dir, repo)
       output     = StringIO.new
       connection = Docker::Connection.new(@docker_url, {})
