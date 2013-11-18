@@ -5,11 +5,12 @@ require 'baleen'
 module Baleen
   class GitHook < Sinatra::Base
 
+    extend Baleen::Default
 
     def self.run!(params={})
       docker_host = params[:docker_host]
       docker_port = params[:docker_port]
-      config      = params[:config] || File.join(ENV["HOME"], "baleen.yml")
+      config      = params[:config] || default_config
 
       Docker.url  = "http://#{docker_host}:#{docker_port}"
       Baleen::Project.load_project(config)
