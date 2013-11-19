@@ -9,12 +9,12 @@ module Baleen
     extend Baleen::Default
 
     def self.run!(params={})
-      docker_host = params[:docker_host]
-      docker_port = params[:docker_port]
-      config      = params[:config] || default_config
+      docker_host  = params[:docker_host]
+      docker_port  = params[:docker_port]
+      project_file = params[:project_file] || default_project_file
 
       Docker.url  = "http://#{docker_host}:#{docker_port}"
-      Baleen::Project.load_project(config)
+      Baleen::Project.load_project(project_file)
 
       set :port, params[:port]
       set :environment, :production

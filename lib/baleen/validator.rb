@@ -1,17 +1,17 @@
 require "yaml"
 
 module Baleen
-  module Config
+  module Validation
     class Validator
 
       include Baleen::Serializable
 
-      def self.check(config)
+      def self.check(project)
         sections = [:runner, :framework, :ci]
 
         sections.each do |sect|
-          validator = Baleen::Config.const_get(sect.to_s.capitalize)
-          unless validator.new(config).validate
+          validator = Baleen::Validation.const_get(sect.to_s.capitalize)
+          unless validator.new(project).validate
             return false
           end
         end
@@ -21,7 +21,7 @@ module Baleen
     class Common
       def initialize(yaml)
         @section = self.class.to_s.split("::").last.downcase.to_sym
-        @config  = yaml[@section]
+        @project  = yaml[@section]
       end
 
       def attributes
@@ -29,14 +29,14 @@ module Baleen
       end
 
       def validate
-        unless @config
+        unless @project
           hl_error "Your baleen.yml is missing the following mandatory section"
           hl_warn  " :#{@section}"
           raise Baleen::Error::Validator::MandatoryMissing
         end
 
         mandatory = mandatory_attributes
-        @config.keys.each do |k|
+        @project.keys.each do |k|
           mandatory.delete k
           unless attributes.include? k
             hl_error "Your baleen.yml has the following invalid attribute at :#{@section} section"
@@ -90,7 +90,7 @@ module Baleen
       private
 
       def target_files
-        case @config[:type]
+        case @project[:type]
           when "cucumber"; :features
         end
       end

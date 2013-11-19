@@ -11,9 +11,10 @@ module Baleen
     end
 
     def build
+      config     = Configuration.instance
       url        = @project.ci[:url]
       repo       = @project.ci[:repo]
-      tmp_dir    = File.join(Server.dir, "tmp/build")
+      tmp_dir    = File.join(config.dir, "tmp/build")
       dir        = File.join(tmp_dir, repo)
       output     = StringIO.new
       connection = Docker::Connection.new(@docker_url, {})

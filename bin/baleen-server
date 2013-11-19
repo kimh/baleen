@@ -21,21 +21,23 @@ end
 
 class BaleenServerCli < Thor
 
+  include Baleen
   include Baleen::Default
 
   desc "start", "Start Baleen server"
   option :docker_host,   :desc => "Host of Docker"
   option :docker_port,   :desc => "Port that Docker is listening to"
   option :port,          :desc => "Port that baleen server is listening to"
-  option :debug,         :desc => "When specified, baleen-server prints out debug message to console"
   option :ci,            :desc => "When specified, baleen-server will receive github post-receive"
   option :ci_port,       :desc => "Port to accept github post-receive"
-  option :config,        :desc => "Path to baleen.yml"
+  option :project_file,  :desc => "Path to project file (baleen.yml)"
   option :dir,           :desc => "Specify the directory for baleen to save temp files, logs, caches, etc."
+  option :log_level,     :desc => "Specify log level"
+  option :debug,         :desc => "Run with debug mode. Alias to set log_level to debug"
   def start
     if running?
-      hl_error "baleen-server is already running"
-      hl_error "Exiting..."
+      BL.error "baleen-server is already running"
+      BL.error "Exiting..."
       exit
     end
 
@@ -43,17 +45,30 @@ class BaleenServerCli < Thor
     docker_port   = options[:docker_port]   || default_docker_port
     port          = options[:port]          || default_port
     dir           = options[:dir]           || default_dir
-    config        = options[:config]        || default_config
+    project_file  = options[:project_file]  || default_project_file
     ci_port       = options[:ci_port]       || default_ci_port
     ci            = options[:ci]
     debug         = options[:debug]
 
-    hl_info "Starting baleen-server..."
-    hl_info "  Listening on: #{port}"
-    hl_info "  Docker API: http://#{docker_host}:#{docker_port}"
+    config = Configuration.instance
+    config.dir = dir
+
+    if debug && options[:log_level]
+      if options[:log_level] != DEBUG
+        hl_error "You can't specify log_level to #{options[:log_level]} with --debug option at the same time"
+        exit 1
+      end
+      config.log_level = DEBUG
+    else
+      config.log_level = options[:log_level] ? Baleen.const_get(options[:log_level].upcase) : default_log_level
+    end
+
+    BL.info "Starting baleen-server..."
+    BL.info "  Listening on: #{port}"
+    BL.info "  Docker API: http://#{docker_host}:#{docker_port}"
 
     Process.daemon(true, debug)
-    Baleen::Server.new(docker_host, docker_port, port, config, dir)
+    Baleen::Server.new(docker_host, docker_port, port, project_file)
     Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port) if ci
 
     # Prevent main thread from exiting for Celluloid actors to continue running
@@ -64,10 +79,10 @@ class BaleenServerCli < Thor
   desc "stop", "Stop Baleen server"
   def stop
     if running?
-      hl_warn "Stopping Baleen server..."
+      BL.warn "Stopping Baleen server..."
       `kill -9 #{pid.first}`
     else
-      hl_warn "baleen-server is not running"
+      BL.warn "baleen-server is not running"
     end
   end
 

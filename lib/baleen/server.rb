@@ -8,17 +8,14 @@ module Baleen
 
   class Server
     include Celluloid::IO
+    include Default
+
     finalizer :shutdown
 
-    def self.dir
-      @@dir
-    end
-
-    def initialize(docker_host, docker_port, port, config, dir)
+    def initialize(docker_host, docker_port, port, project_file)
       Docker.url = "http://#{docker_host}:#{docker_port}"
-      Baleen::Project.load_project(config)
+      Baleen::Project.load_project(project_file)
       @server = TCPServer.new("0.0.0.0", port)
-      @@dir   = FileUtils.mkdir_p("#{dir}/baleen").first
       async.run
     end
 
@@ -30,7 +27,7 @@ module Baleen
       begin
         @server.close
       rescue IOError
-        hl_info "Shutting down baleen-server..."
+        BL.info "Shutting down baleen-server..."
       end
     end
 

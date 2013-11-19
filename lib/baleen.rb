@@ -1,6 +1,8 @@
 require "baleen/version"
 
 require 'baleen/default'
+require 'baleen/configuration'
+require 'baleen/utils/logger'
 require 'baleen/serializable'
 require 'baleen/client'
 require 'baleen/task/task'
@@ -11,7 +13,7 @@ require 'baleen/runner'
 require 'baleen/ci_server'
 require 'baleen/connection'
 require 'baleen/message/message'
-require 'baleen/config_validator'
+require 'baleen/validator'
 require 'baleen/project'
 require 'baleen/builder'
 

@@ -10,7 +10,7 @@ module Baleen
     end
 
     def default_dir
-      "./"
+      "./baleen"
     end
 
     def default_concurrency
@@ -41,12 +41,16 @@ module Baleen
       4567
     end
 
-    def default_config
+    def default_project_file
       File.join(ENV["HOME"], "baleen.yml")
     end
 
     def default_branch
       "master"
+    end
+
+    def default_log_level
+      Baleen::INFO
     end
 
   end

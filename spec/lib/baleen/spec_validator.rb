@@ -16,7 +16,7 @@ describe Baleen::Config do
           :type => "cucumber"
         }
       }
-      expect(Baleen::Config::Validator.check(config)).to be_true
+      expect(Baleen::Validation::Validator.check(config)).to be_true
     end
   end
 
@@ -34,7 +34,7 @@ describe Baleen::Config do
           :bad =>"MJ", # This is invalid
         }
       }
-      expect(Baleen::Config::Validator.check(config)).to be_false
+      expect(Baleen::Validation::Validator.check(config)).to be_false
     end
   end
 
@@ -46,7 +46,7 @@ describe Baleen::Config do
           :port=>5533,
         }
       }
-      expect{Baleen::Config::Validator.check(config)}.to raise_error Baleen::Error::Validator::MandatoryMissing
+      expect{Baleen::Validation::Validator.check(config)}.to raise_error Baleen::Error::Validator::MandatoryMissing
     end
   end
 

@@ -4,16 +4,16 @@ require "thor"
 require "baleen"
 
 module BaleenCliHelper
-  def job_start(config)
-    klass = config[:framework][:type].to_s.capitalize
+  def job_start(project)
+    klass = project[:framework][:type].to_s.capitalize
     task = Baleen::Task.const_get(klass).new(
-      image: config[:runner][:image],
-      work_dir: config[:runner][:work_dir],
-      files: config[:framework][:files],
-      before_command: config[:runner][:before_command],
-      concurrency: config[:runner][:concurrency].to_i,
+      image: project[:runner][:image],
+      work_dir: project[:runner][:work_dir],
+      files: project[:framework][:files],
+      before_command: project[:runner][:before_command],
+      concurrency: project[:runner][:concurrency].to_i,
     )
-    client  = Baleen::Client.new(config[:base][:baleen_server], config[:base][:port])
+    client  = Baleen::Client.new(project[:base][:baleen_server], project[:base][:port])
     job     = Baleen::Job.new(client, task)
     job.start
   end
@@ -60,8 +60,8 @@ module BaleenCLI
     option :image, :required => true
 
     desc "cucumber", "Running cucumber project from options"
-    def cucumber
-     cfg = {
+    def start
+     project = {
        base: {
          baleen_server: options[:baleen_server],
          port: options[:port]                    || default_port
@@ -78,8 +78,10 @@ module BaleenCLI
        }
      }
 
-     job_start(cfg)
+     job_start(project)
     end
+    default_task :start
+
   end
 
   class Main < Thor

@@ -22,7 +22,7 @@ module Baleen
         end
 
         yaml.each do |project, cfg|
-          if Baleen::Config::Validator.check(cfg)
+          if Baleen::Validation::Validator.check(cfg)
             @@projects[project] = self.new(cfg)
           end
         end
@@ -70,7 +70,7 @@ module Baleen
       end
 
       def load_config(cfg)
-        if Baleen::Config::Validator.check(cfg)
+        if Baleen::Validation::Validator.check(cfg)
           cfg[:runner][:before_command] ||= default_before_command
           cfg[:runner][:concurrency]    ||= default_concurrency
           cfg[:runner][:work_dir]       ||= default_work_dir
