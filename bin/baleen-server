@@ -49,27 +49,28 @@ class BaleenServerCli < Thor
     ci_port       = options[:ci_port]       || default_ci_port
     ci            = options[:ci]
     debug         = options[:debug]
+    log_level     = options[:log_level]
 
     config = Configuration.instance
     config.dir = dir
 
-    if debug && options[:log_level]
-      if options[:log_level] != DEBUG
-        hl_error "You can't specify log_level to #{options[:log_level]} with --debug option at the same time"
+    if debug && log_level
+      if log_level != DEBUG
+        hl_error "You can't specify log_level to #{log_level} with --debug option at the same time"
         exit 1
       end
       config.log_level = DEBUG
     else
-      config.log_level = options[:log_level] ? Baleen.const_get(options[:log_level].upcase) : default_log_level
+      config.log_level = log_level ? Baleen.const_get(log_level.upcase) : default_log_level
     end
 
-    BL.info "Starting baleen-server..."
-    BL.info "  Listening on: #{port}"
-    BL.info "  Docker API: http://#{docker_host}:#{docker_port}"
+    BL.notice("Starting baleen-server...")
+    BL.notice("  Listening on: #{port}")
+    BL.notice("  Docker API: http://#{docker_host}:#{docker_port}").eol
 
     Process.daemon(true, debug)
     Baleen::Server.new(docker_host, docker_port, port, project_file)
-    Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port) if ci
+    Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port, log_level: log_level) if ci
 
     # Prevent main thread from exiting for Celluloid actors to continue running
     # See https://github.com/celluloid/celluloid/wiki/Frequently-Asked-Questions

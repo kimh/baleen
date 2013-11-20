@@ -12,5 +12,9 @@ module Baleen
       @dir       = default_dir
     end
 
+    def self.log_level=(level)
+      instance.log_level = level
+    end
+
   end
 end

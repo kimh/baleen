@@ -3,7 +3,7 @@ module Baleen
 
       @@projects = {}
 
-      attr_reader :config
+      attr_reader :name, :config
 
       def self.projects(name=nil)
         if name
@@ -23,7 +23,7 @@ module Baleen
 
         yaml.each do |project, cfg|
           if Baleen::Validation::Validator.check(cfg)
-            @@projects[project] = self.new(cfg)
+            @@projects[project] = self.new(project, cfg)
           end
         end
       end
@@ -65,7 +65,8 @@ module Baleen
         find_project(nil, :framework, params)
       end
 
-      def initialize(cfg)
+      def initialize(name, cfg)
+        @name = name
         load_config(cfg)
       end
 
@@ -88,6 +89,22 @@ module Baleen
 
       def ci
         @config[:ci]
+      end
+
+      def image
+        @config[:runner][:image]
+      end
+
+      def branch
+        ci[:branch]
+      end
+
+      def repo
+        ci[:repo]
+      end
+
+      def url
+        ci[:url]
       end
 
       def task

@@ -2,10 +2,11 @@ require "colorize"
 
 module Baleen
   class ResultDisplay
-    def initialize(result, start_time, end_time)
+    def initialize(result, start_time, end_time, output)
       @result     = result
       @start_time = start_time
       @end_time   = end_time
+      @output     = output
     end
 
     def report_result
@@ -19,22 +20,22 @@ module Baleen
       tests_result = pass_all? ? "Pass".blue : "Fail".red
       time = run_time
 
-      puts   ""
-      puts   "[Summary]".yellow
-      puts   "Result: ".yellow + tests_result
-      puts   "Time: ".yellow + time.green
-      puts   ""
+      @output.puts   ""
+      @output.puts   "[Summary]".yellow
+      @output.puts   "Result: ".yellow + tests_result
+      @output.puts   "Time: ".yellow + time.green
+      @output.puts   ""
     end
 
     def detail
-      puts "[Details]".yellow
+      @output.puts "[Details]".yellow
       @result.each do |r|
-        puts "Id: ".yellow + "#{r['container_id']}".green
-        puts "status code: ".yellow + "#{r['status_code']}".green
-        puts "feature file: ".yellow + "#{r['file']}".green
-        puts "logs:".yellow
-        puts "------------------------------------".yellow
-        puts "#{r['log']}".green
+        @output.puts "Id: ".yellow + "#{r['container_id']}".green
+        @output.puts "status code: ".yellow + "#{r['status_code']}".green
+        @output.puts "feature file: ".yellow + "#{r['file']}".green
+        @output.puts "logs:".yellow
+        @output.puts "------------------------------------".yellow
+        @output.puts "#{r['log']}".green
       end
     end
 
