@@ -28,7 +28,7 @@ module Baleen
     def initialize
       config = Baleen::Configuration.instance
 
-      if config.debug == DEBUG
+      if config.debug
         device = STDOUT
       else
         dir = File.join(config.dir, "log")
