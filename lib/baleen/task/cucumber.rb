@@ -35,7 +35,7 @@ module Baleen
         )
         runner = Baleen::Runner.new(task)
         result = runner.run
-        @target_files = result[:log].split("\n")
+        @target_files = result[:stdout]
       end
 
     end

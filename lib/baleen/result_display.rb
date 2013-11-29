@@ -33,9 +33,18 @@ module Baleen
         @output.puts "Id: ".yellow + "#{r['container_id']}".green
         @output.puts "status code: ".yellow + "#{r['status_code']}".green
         @output.puts "feature file: ".yellow + "#{r['file']}".green
-        @output.puts "logs:".yellow
-        @output.puts "------------------------------------".yellow
-        @output.puts "#{r['log']}".green
+
+        if r['stdout']
+          @output.puts "STDOUT:".yellow
+          @output.puts "------------------------------------".yellow
+          @output.puts "#{r['stdout'].join}".green
+        end
+
+        if r['stderr']
+          @output.puts "STDERR:".yellow
+          @output.puts "------------------------------------".yellow
+          @output.puts "#{r['stderr'].join}".red
+        end
       end
     end
 

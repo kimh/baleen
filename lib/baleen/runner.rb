@@ -71,10 +71,13 @@ module Baleen
         end
       end
 
+      stdout, stderr = *@container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true)
+
       return {
         status_code: @container.json["State"]["ExitCode"],
         container_id: @container.id,
-        log: @container.attach(:stream => false, :stdout => true, :stderr => true, :logs => true),
+        stdout: stdout,
+        stderr: stderr,
         file: @task.files,
       }
     end
