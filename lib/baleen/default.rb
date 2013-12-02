@@ -53,5 +53,9 @@ module Baleen
       Baleen::INFO
     end
 
+    def default_daemon
+      false
+    end
+
   end
 end

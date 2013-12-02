@@ -33,7 +33,7 @@ class BaleenServerCli < Thor
   option :project_file,  :desc => "Path to project file (baleen.yml)"
   option :dir,           :desc => "Specify the directory for baleen to save temp files, logs, caches, etc."
   option :log_level,     :desc => "Specify log level"
-  option :debug,         :desc => "Run with debug mode. Alias to set log_level to debug", :type => :boolean
+  option :daemon,        :desc => "Running Baleen on background", :type => :boolean
   def start
     if running?
       BL.error "baleen-server is already running"
@@ -47,13 +47,13 @@ class BaleenServerCli < Thor
     dir           = options[:dir]           || default_dir
     project_file  = options[:project_file]  || default_project_file
     ci_port       = options[:ci_port]       || default_ci_port
+    daemon        = options[:daemon]        || default_daemon
     ci            = options[:ci]
-    debug         = options[:debug]
     log_level     = options[:log_level]
 
     config        = Configuration.instance
     config.dir    = dir
-    config.debug  = debug
+    config.debug  = daemon ? false : true
     log_levels    = {"debug" => DEBUG, "info" => INFO, "warn" => WARN, "error" => ERROR}
 
     if log_level.nil?
@@ -70,7 +70,7 @@ class BaleenServerCli < Thor
     BL.notice("  Listening on: #{port}")
     BL.notice("  Docker API: http://#{docker_host}:#{docker_port}").eol
 
-    Process.daemon(true, debug)
+    Process.daemon(true, false) if daemon
     Baleen::Server.new(docker_host, docker_port, port, project_file)
     Baleen::CiServer.run!(docker_host: docker_host, docker_port: docker_port, port: ci_port, log_level: log_level) if ci
 
