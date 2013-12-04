@@ -1,46 +1,29 @@
-# baleen.yml: Configuration file to run baleen
-#
-# This file is used to specify the configuration for your baleen job.
-# The file has three top sections and config file must have each section
-#
-# base:
-#   Mandatory
-#     baleen-server: IP address or host of baleen server
-#
-#   Optional
-#     port: port that baleen server is listening. Default: 5533
-#
-# runner:
-#   Mandatory
-#     image: name of image to run Docker container where your tests will be run
-#
-#   Optional
-#     work_dir: working directory of container. Default: ./
-#     concurrency: number of containers to run at one time. Default: 2
-#     before_command: commands to run before running your tests.
-#
-# framework:
-#   Mandatory
-#     type: your test framework
-#
-#   Optional
-#     features: place of your feature files when your framework type is cucumber. Default: ./features
-#
+#### Sample baleen project file ####
 
-base:
-  baleen_server: 127.0.0.1
-  port: 5533
+## Use this file as your template to construct your project and save as ~/baleen.yml
+## The file is loaed by baleen-server at boot time (use --project_file option to specify file location)
+## See also https://github.com/kimh/baleen/blob/master/README.md
 
-runner:
-  image: kimh/baleen-poc
-  work_dir: /git/baleen/poc
-  concurrency: 3
-  before_command: bundle install
-  # If you want to specify multiple commands, you can use block style syntax of YAML
-  # before_command: |
-  #   source /etc/profile.d/rvm.sh
-  #   bundle install
+# Project name section
+baleen-poc:
+  # Runner section
+  runner:
+    image: "kimh/baleen-poc"
+    work_dir: /baleen-poc
+    concurrency: 3
+    before_command: |
+      source /etc/profile
+      export RAILS_ENV=test
+      bundle exec rake db:migrate
 
-framework:
-  type: cucumber
-  features: ./
+  # Framework section
+  framework:
+    type: cucumber
+    features: ./features/t1.feature
+
+  # CI section
+  ci:
+    build: true
+    url: https://github.com/kimh/baleen-poc
+    repo: baleen-poc
+    branch: master
