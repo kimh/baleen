@@ -19,9 +19,11 @@ As of v0.2, only cucmber tests are supported.
 This will install both client and server.
 
 ## Usage
-Baleen is server-client model. You need to run baleen-server which talks Docker API and baleen (client) to put your request to the server.
+Baleen is server-client model. By installing baleen gem, you will get two executables: baleen-server (server) and baleen (client).
 
-#### Running Baleen server
+You use baleen-server which receives request from client and interacts Docker via remote API.
+
+#### baleen-server
 You can run baleen server with baleen-server command.
 
     $ baleen-server start    
@@ -38,16 +40,7 @@ baleen-server will take below options
 * --log-level: specify log level. It is should be either "debug", "warn", or "error"
 * --daemon: running baleen-server on background. Default: false
 
-#### Using Baleen
-There are mainly two ways to use baleen
-
-* on-the-fly: You pass options to baleen-server from baleen cli.
-* project: You write baleen.yml file for projects that will be loaded baleen-server at boot time.
-
-##### On-the-fly
-With on-the-fly way, you will use baleen cli from shell. Benifit of using this way is you can change options flexibly. This is sutable when you need to figure out what options you need to pass to run your tests successfully.
-
-Basic syntax is
+#### baleen
 
     $ baleen subcommand option1 option2
 
@@ -61,14 +54,23 @@ baleen command wil take below options
 * --concurrency: specify number of containers that you want to run at the same time. Default: 2
 * --debug: running client on debug mode. As of v0.2, debugging only printing celluloid debug messages to console.
 
-Here is an example to use baleen cli. With this, you are running cucumber tests by using kimh/baleen-poc Docker image and running 6 containers, each container running one feature, at the same time.
+### Using Baleen
+There are mainly two ways to use baleen
+
+* on-the-fly: You pass options to baleen-server from baleen cli.
+* project: You write baleen.yml file for projects that will be loaded baleen-server at boot time.
+
+#### On-the-fly
+With on-the-fly way, you will use baleen cli from shell. Benefit of using this way is you can change options flexibly. This is suitable when you need to figure out what options you need to pass to run your tests successfully.
+
+Here is an example to use baleen cli to let baleen-server to run test on the fly. With this, you are running cucumber tests by using kimh/baleen-poc Docker image and running 6 containers, each container running one feature, at the same time.
 
     $ baleen cucumber --image kimh/baleen-poc --files features --work_dir /git/baleen/poc --before_command "source /etc/profile" --concurrency 6
-    
-##### Project
-By using project, you can save test configurations in a yaml file which is loaded by baleen-server at boot time. After that, you can kick the project from baleen cli simply specifying project name.
 
-The project file consits of project section that has 3 sub sections (runner, framework, and ci). You can specify multiple projects in a single file. Here is an example project file.
+#### Project
+By using project, you can save test configurations in a yaml file which is loaded by baleen-server at boot time. After that, you can kick the project from baleen cli simply by specifying project name.
+
+The project file consists of project section that has 3 sub sections (runner, framework, and ci). You can specify multiple projects in a single file. Here is an example of project file.
 
     # Project name section
     baleen-poc:
@@ -92,9 +94,8 @@ The project file consits of project section that has 3 sub sections (runner, fra
         repo: baleen-poc
         branch: master
 
-###### Project name section
+##### Project name section
 You must have one project name section to specify the name of project.
-
 
 Under project section, you should have 3 sub sections. Each section has mandatory and optional sections. If you don't specify optional sections, it follows the same default value as the equivalent baleen cli option if exists.
 ##### Runner section
@@ -138,7 +139,7 @@ You must have one ci section to specify CI (continuous integration) setting. Not
   * branch: Branch to pull and use it for tests.
 
 ## Try Baleen
-Please try Baleen and give me feedback!!
+Please try Baleen and give me your feedback!!
 
 Here, I am assuming two different scenarios: Linux user and Mac user. In both cases, you need to install Docker and enable remote API.
 
