@@ -170,7 +170,7 @@ In this section, you will use baleen to run cucumber tests of [poc](https://gith
 Here, I am assuming two different scenarios: Linux user and Mac user. If "Only for Mac user", Linux user can skip the section. Otherwise, both users have to do the section.
 
 #### Installing Docker
-First of all, you need to install Docker. Please follow [official page](https://www.docker.io/gettingstarted/#h_installation "official page").
+First of all, you need to install Docker. Please follow [official page](https://www.docker.io/gettingstarted/#h_installation "instruction at official page").
 
 #### Enable remote API
 Docker only allows access through unix socket by default. Since baleen relies on Docker remote API, you need to enable the access through TCP.
