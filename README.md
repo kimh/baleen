@@ -156,12 +156,12 @@ _Optional_
 ## Try Baleen
 Please try Baleen and give me your feedback!!
 
-Here, I am assuming two different scenarios: Linux user and Mac user.
+Here, I am assuming two different scenarios: Linux user and Mac user. If "Only for Mac user", Linux user can skip the section. Otherwise, both users have to do the section.
 
-#### Installing Docker (For both Linux and Mac users)
+#### Installing Docker
 First of all, you need to install Docker. Please follow [official page](https://www.docker.io/gettingstarted/#h_installation "official page").
 
-#### Enable remote API (For both Linux and Mac users)
+#### Enable remote API
 Docker only allows access through unix socket by default. Since baleen relies on Docker remote API, you need to enable the access through TCP.
 
 Open _/etc/init/docker.conf_ and modify **DOCKER_OPTS**.
@@ -187,7 +187,7 @@ Restart docker
 
     $ restart docker
 
-### Configure port forwarding for Vagrant (Only for Mac user)
+#### Configure port forwarding for Vagrant (Only for Mac user)
 _You can skip this step if you use Linux_
 
 Add following line to Vagrant.configure block to forward 5533 port
@@ -196,16 +196,16 @@ Add following line to Vagrant.configure block to forward 5533 port
 
 And run Vagrant and Docker.
 
-### Pull images (For both Linux and Mac users)
+#### Pull images
 
     $ docker pull kimh/baleen-server
     $ docker pull kimh/baleen-poc
 
-### Running baleen-server container (For both Linux and Mac users)
+#### Running baleen-server container
 
     $ docker run -i -t -p 5533:5533 kimh/baleen-server
 
-### Use baleen cli and run baleen-poc project (For both Linux and Mac users)
+#### Use baleen cli and run baleen-poc project
 
     $ baleen project baleen-poc
     Start container f77b2608137e
