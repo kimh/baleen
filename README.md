@@ -83,7 +83,7 @@ There are mainly two ways to use baleen
 * project: You write baleen.yml file for projects that will be loaded baleen-server at boot time.
 
 #### On-the-fly
-With on-the-fly way, you will use baleen cli from shell. Benefit of using this way is you can change options flexibly. This is suitable when you need to figure out what options you need to pass to run your tests successfully.
+With on-the-fly way, you will use baleen cli and passes options. Benefit of this approach is you can change options flexibly. This is suitable when you need to figure out what options you need to pass to run your tests successfully.
 
 Here is an example to use baleen cli to let baleen-server to run test on the fly. With this, you are running cucumber tests by using kimh/baleen-poc Docker image and running 6 containers, each container running one feature, at the same time.
 
