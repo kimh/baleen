@@ -41,17 +41,17 @@ baleen-server will take below options
 
 #### baleen
 
-    $ baleen subcommand option1 option2
+    $ baleen subcommand --option1 --option2
 
 baleen command wil take two subcommands
 
 * project: specify project to run
 
-project subcommand will take one more subcommand to specify project name
+**project** subcommand will take one more subcommand to specify project name
 
 * cucumber: run cucumber tests
 
-cucumber subcommand wil take the following options
+**cucumber** subcommand wil take following options
 
 * --image: specify the name of image that you want to use to run your tests. Mandatory option
 * --files: specify directory or file of tests that you want to run. Default is /features with v0.0.1
@@ -59,7 +59,7 @@ cucumber subcommand wil take the following options
 * --before_command: specify commands that you want to execute before running your tests. Default: nil
 * --concurrency: specify number of containers that you want to run at the same time. Default: 2
 
-Both subcommands can take the following options
+Both subcommands can take following options
 
 * --baleen_server: specify host where baleen-server is running. Default: 127.0.0.1
 * --port: specify port number of baleen server. Default: 5533
@@ -190,7 +190,7 @@ Restart docker
 ### Configure port forwarding for Vagrant (Only for Mac user)
 _You can skip this step if you use Linux_
 
-Add the following line to Vagrant.configure block to forward 5533 port
+Add following line to Vagrant.configure block to forward 5533 port
 
     config.vm.network :forwarded_port, guest: 5533, host: 5533
 
