@@ -1,9 +1,7 @@
 # Baleen
 Baleen is a test runner powered by Docker.
-Baleen allows you to run ruby standard tests such as Cucumber or Rspec in totally isolated environment and parallel.
 
-By using Baleen, you can run a each test in a dedicated linux container, so each test will not affect the state of other tests.
-Also, Baleen will speed up your tests since multiple containers run their tests in parallel.
+Baleen allows you to run ruby standard tests such as Cucumber or Rspec in totally **isolated** environment and **parallel**.
 
 ## Supproted Framework
 As of v0.2, only cucumber tests are supported.
@@ -54,7 +52,7 @@ baleen-server will take below options
 
     $ baleen subcommand --option1 --option2
 
-baleen command wil take two subcommands
+baleen command will take two subcommands
 
 * project: specify project to run
 
@@ -288,8 +286,8 @@ And run Vagrant and Docker.
 So how baleen-poc tests are run?
 
 ####Step 1. Breaking up features/ directoires
-First, baleen-server need to know how many test files exist under the directory specified by features section of baleen.yml.
-To do this, it runs a container by using the image specified at image section and run __find ./features__ bash script to output each single files.
+First, baleen-server needs to know how many test files exist under the directory specified by features section of baleen.yml.
+To do this, it runs a container by using the image specified at image section and run __find ./features__ bash command.
 
 ####Step 2. Run containers
 baleen-server will run containers to run actual tests. It depends on your configuration, but the most simple command for containers are like this.
