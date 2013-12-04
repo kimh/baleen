@@ -7,6 +7,7 @@ Also, Baleen will speed up your tests since multiple containers run their tests 
 
 ## Supproted Framework
 As of v0.2, only cucmber tests are supported.
+
 ## Requirement
 * Docker v0.7 or later
 * ruby-2.0.0 or later
@@ -16,15 +17,15 @@ As of v0.2, only cucmber tests are supported.
     gem install baleen
 
 This will install both client and server.
+
 ## Usage
 Baleen is server-client model. By installing baleen gem, you will get two executables: baleen-server (server) and baleen (client).
 
 You use baleen-server which receives request from client and interacts Docker via remote API.
 
 #### baleen-server
-You can run baleen server with baleen-server command.
 
-    $ baleen-server start    
+    $ baleen-server start
 
 baleen-server will take below options
 
@@ -66,9 +67,11 @@ Here is an example to use baleen cli to let baleen-server to run test on the fly
     $ baleen cucumber --image kimh/baleen-poc --files features --work_dir /git/baleen/poc --before_command "source /etc/profile" --concurrency 6
 
 #### Project
-By using project, you can save test configurations in a yaml file which is loaded by baleen-server at boot time. After that, you can kick the project from baleen cli simply by specifying project name.
+By using project, you can save test configurations in a yaml file which is loaded by baleen-server at boot time. After that, you can kick the project from baleen cli simply by specifying project name like this.
 
-The project file consists of project section that has 3 sub sections (runner, framework, and ci). You can specify multiple projects in a single file. Here is an example of project file.
+    $ baleen project my-project
+
+Project file consists of project name section that has 3 sub sections (runner, framework, and ci) and each sub section has more sections. You can specify multiple projects in a single file. Here is an example of project file.
 
     # Project name section
     baleen-poc:
@@ -82,10 +85,12 @@ The project file consists of project section that has 3 sub sections (runner, fr
           export RAILS_ENV=test
           bundle exec rake db:migrate
 
+      # Framework section
       framework:
         type: cucumber
         features: ./features/t1.feature
 
+      # CI section
       ci:
         build: true
         url: https://github.com/kimh/baleen-poc
@@ -97,13 +102,13 @@ You must have one project name section to specify the name of project.
 
 Under project section, you should have 3 sub sections. Each section has mandatory and optional sections. If you don't specify optional sections, it follows the same default value as the equivalent baleen cli option if exists.
 ##### Runner section
-You must have one runner section to specify how to run tests. Runner section has following child sections.
+You must have one runner section. Runner section has following sub sections.
 
-**Mandatory**
+_Mandatory_
 
  * image: Name of Docker image. This is equivalent to --image option of baleen cli.
 
-**Optional**
+_Optional_
 
  * work_dir: Working directory. This is equivalent to --work_dir option of baleen cli.
  * concurrency: Number of concurrency. This is equivalent to --concurrency option of baleen cli.
@@ -112,26 +117,26 @@ You must have one runner section to specify how to run tests. Runner section has
 ##### Framework section
 You must have one framework section to specify settings for test frameworks to run.
 
-**Mandatory**
+_Mandatory_
 
  * type: Specify the name of test framework. As of v0.2, only cucumber is allowed to specify. This is equivalent to cucumber subcommand of baleen cli.
 
 
-**Optional**
+_Optional_
 
 Below sections are optional. If you don't specify, it follows the same default value as the equivalent baleen cli option.
 
  * featutes: Specify feature files to be run. This section is only valid only when you specify cucumber at type. This is equivalent to --files option of baleen cli.
 
-##### Ci section
+##### CI section
 You must have one ci section to specify CI (continuous integration) setting. Note that this section will be ignored if your don't give --ci option to baleen-server.
 
-**Mandatory**
+_Mandatory_
 
   * repo: Name of repository.
   * url: URL of your github repository to pull.
 
-**Optional**
+_Optional_
 
   * build: Specify whether you want to receive github post receive hook to run your projects automatically. This is equivalent to --ci option of baleen-server command.
   * branch: Branch to pull and use it for tests.
@@ -139,7 +144,7 @@ You must have one ci section to specify CI (continuous integration) setting. Not
 ## Try Baleen
 Please try Baleen and give me your feedback!!
 
-Here, I am assuming two different scenarios: Linux user and Mac user. In both cases, you need to install Docker and enable remote API.
+Here, I am assuming two different scenarios: Linux user and Mac user.
 
 #### Installing Docker (For both Linux and Mac users)
 First of all, you need to install Docker. Please follow [official page](https://www.docker.io/gettingstarted/#h_installation "official page").
@@ -147,9 +152,9 @@ First of all, you need to install Docker. Please follow [official page](https://
 #### Enable remote API (For both Linux and Mac users)
 Docker only allows access through unix socket by default. Since baleen relies on Docker remote API, you need to enable the access through TCP.
 
-Open /etc/init/docker.conf and modify DOCKER_OPTS.
+Open _/etc/init/docker.conf_ and modify **DOCKER_OPTS**.
 
-    $ vi cat /etc/init/docker.conf
+    $ vi /etc/init/docker.conf
     description "Docker daemon"
 
     start on filesystem and started lxc-net
@@ -170,7 +175,7 @@ Restart docker
 
     $ restart docker
 
-### Configure port fowarding for Vagrant (For only Mac user)
+### Configure port forwarding for Vagrant (Only for Mac user)
 _You can skip this step if you use Linux_
 
 Add the following line to Vagrant.configure block to forward 5533 port
@@ -179,7 +184,7 @@ Add the following line to Vagrant.configure block to forward 5533 port
 
 And run Vagrant and Docker.
 
-### Pull pre-configured Baleen images (For both Linux and Mac users)
+### Pull images (For both Linux and Mac users)
 
     $ docker pull kimh/baleen-server
     $ docker pull kimh/baleen-poc
@@ -188,7 +193,7 @@ And run Vagrant and Docker.
 
     $ docker run -i -t -p 5533:5533 kimh/baleen-server
 
-### Use baleen cli and run baleen-poc projectt (For both Linux and Mac users)
+### Use baleen cli and run baleen-poc project (For both Linux and Mac users)
 
     $ baleen project baleen-poc
     Start container f77b2608137e
