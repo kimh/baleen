@@ -6,7 +6,7 @@ By using Baleen, you can run a each test in a dedicated linux container, so each
 Also, Baleen will speed up your tests since multiple containers run their tests in parallel.
 
 ## Supproted Framework
-As of v0.2, only cucmber tests are supported.
+As of v0.2, only cucumber tests are supported.
 
 ## Requirement
 * Docker v0.7 or later
@@ -156,7 +156,7 @@ _Optional_
 ## Try Baleen
 Please try Baleen and give me your feedback!!
 
-In this section, you will use baleen to run cucumber tests of [poc](https://github.com/kimh/baleen-poc "baleen-poc app")
+In this section, you will use baleen to run cucumber tests of [poc](https://github.com/kimh/baleen-poc "baleen-poc app"). baleen-poc is a fake app with some cucumber features to show how baleen runs cucumber tests.
 
 Here, I am assuming two different scenarios: Linux user and Mac user. If "Only for Mac user", Linux user can skip the section. Otherwise, both users have to do the section.
 
@@ -272,6 +272,27 @@ And run Vagrant and Docker.
     Rack::File headers parameter replaces cache_control after Rack 1.5.
 
     ....snip.....
+
+### How Baleen works (briefly explained)
+So how baleen-poc tests are run?
+
+####Step 1. Breaking up features/ directoires
+First, baleen-server need to know how many test files exist under the directory specified by features section of baleen.yml.
+To do this, it runs a container by using the image specified at image section and run __find ./features__ bash script to output each single files.
+
+####Step 2. Run containers
+baleen-server will run containers to run actual tests. It depends on your configuration, but the most simple command for containers are like this.
+
+    $ cd work_dir && bundle exec cucumber $feature_file
+
+where $feature_file is each cucumber file passed from step 1. baleen-server will run proper number of containers according to concurrency.
+
+####Step 3. Wait containers
+baleen-server then monitor and wait for each container to finish given test. This will be done asynchronously thanks to Celluloid.
+
+####Step 4. Report result
+when all containers finish running tests, it collects STDOUT of all containers to see the rest result and display to user.
+
 
 ## Contributing
 
