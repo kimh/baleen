@@ -18,6 +18,17 @@ As of v0.2, only cucumber tests are supported.
 
 This will install both client and server.
 
+## Basic workflow
+
+####1. Creating Docker image
+First of all, you need to create a Docker image where you can run your app's tests. Since Baleen run actual tests by running the image, you need to have latest test codes on the image. Baleen's CI feature will help this by automatically updating your image whenever you push to specific branch of github.
+
+####2. Running baleen-server
+baleen-server will wait for client to run tests
+
+####3. Trigger test from baleen cli
+Requests baleen-server to run specific tests. You can do by either using on-the-fly or project. (explained later)
+
 ## Usage
 Baleen is server-client model. By installing baleen gem, you will get two executables: baleen-server (server) and baleen (client).
 
@@ -302,6 +313,4 @@ when all containers finish running tests, it collects STDOUT of all containers t
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 6. Work hard!!
-
-
 
