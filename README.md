@@ -7,7 +7,6 @@ Also, Baleen will speed up your tests since multiple containers run their tests 
 
 ## Supproted Framework
 As of v0.2, only cucmber tests are supported.
-
 ## Requirement
 * Docker v0.7 or later
 * ruby-2.0.0 or later
@@ -17,7 +16,6 @@ As of v0.2, only cucmber tests are supported.
     gem install baleen
 
 This will install both client and server.
-
 ## Usage
 Baleen is server-client model. By installing baleen gem, you will get two executables: baleen-server (server) and baleen (client).
 
