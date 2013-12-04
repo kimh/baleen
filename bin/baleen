@@ -53,7 +53,7 @@ module BaleenCLI
     include Baleen::Default
     include BaleenCliHelper
 
-    option :baleen_server, :required => true
+    option :baleen_server
     option :port
     option :before_command
     option :concurrency
@@ -66,8 +66,8 @@ module BaleenCLI
     def start
      project = {
        base: {
-         baleen_server: options[:baleen_server],
-         port: options[:port]                    || default_port
+         baleen_server: options[:baleen_server]   || default_baleen_server,
+         port: options[:port]                     || default_port
        },
        runner: {
          before_command: options[:before_command] || default_before_command,
