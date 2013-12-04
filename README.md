@@ -156,6 +156,8 @@ _Optional_
 ## Try Baleen
 Please try Baleen and give me your feedback!!
 
+In this section, you will use baleen to run cucumber tests of [poc](https://github.com/kimh/baleen-poc "baleen-poc app")
+
 Here, I am assuming two different scenarios: Linux user and Mac user. If "Only for Mac user", Linux user can skip the section. Otherwise, both users have to do the section.
 
 #### Installing Docker
