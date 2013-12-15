@@ -84,6 +84,7 @@ module Baleen
       def optional_attributes
         [
           target_files,
+          :options,
         ]
       end
 

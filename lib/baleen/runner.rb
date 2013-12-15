@@ -44,7 +44,7 @@ module Baleen
     def_delegator :@connection, :notify_info
 
     def initialize(task, connection=nil)
-      @container = Docker::Container.create('Cmd' => [task.shell, task.opt, task.commands], 'Image' => task.image)
+      @container  = Docker::Container.create('Cmd' => ["bash", "-c", task.commands], 'Image' => task.image)
       @connection = connection ? connection : Connection.new
       @task = task
     end

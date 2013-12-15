@@ -11,9 +11,8 @@ module Baleen
 
       def initialize(opt)
         super()
-        @params[:shell]          = opt[:shell]          || "/bin/bash"
-        @params[:opt]            = opt[:opt]            || "-c"
-        @params[:exe]            = opt[:exe]            || "bundle exec cucumber"
+        @params[:bin]            = opt[:bin]            || "bundle exec cucumber"
+        @params[:options]        = opt[:options]
         @params[:work_dir]       = opt[:work_dir]       || default_work_dir
         @params[:files]          = opt[:files]          || default_features
         @params[:concurrency]    = opt[:concurrency]    || default_concurrency
@@ -27,8 +26,6 @@ module Baleen
 
       def prepare
         task = Generic.new(
-          shell:    shell,
-          opt:      opt,
           work_dir: work_dir,
           image:    image,
           command:  %{find #{files} | grep "\\.feature"}

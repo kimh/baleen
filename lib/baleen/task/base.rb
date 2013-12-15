@@ -6,11 +6,10 @@ module Baleen
       def initialize
         @params = {}
         @params[:klass]          = self.class.to_s
-        @params[:shell]          = nil
-        @params[:opt]            = nil
         @params[:work_dir]       = nil
         @params[:files]          = nil
-        @params[:exe]            = nil
+        @params[:bin]            = nil
+        @params[:options]        = nil
         @params[:concurrency]    = nil
         @params[:image]          = nil
         @params[:before_command] = nil
@@ -29,7 +28,7 @@ module Baleen
       end
 
       def command
-        @params[:command] ||= %{#{@params[:exe]} #{@params[:files]}}
+        @params[:command] ||= %{#{@params[:bin]} #{@params[:options]} #{@params[:files]}}
       end
 
       def command=(c)

@@ -113,6 +113,7 @@ module Baleen
         Baleen::Task::Cucumber.new(
           image: @config[:runner][:image],
           work_dir: @config[:runner][:work_dir],
+          options: @config[:framework][:options],
           files: @config[:framework][:files],
           before_command: @config[:runner][:before_command],
           concurrency: @config[:runner][:concurrency].to_i,

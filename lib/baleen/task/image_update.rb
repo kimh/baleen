@@ -8,8 +8,6 @@ module Baleen
 
       def initialize(opt)
         super()
-        @params[:shell]          = opt[:shell]       ||="/bin/bash"
-        @params[:opt]            = opt[:opt]         ||="-c"
         @params[:image]          = opt[:image]       ||="kimh/baleen-poc"
         @params[:command]        = opt[:command]
         @params[:work_dir]       = opt[:work_dir]
