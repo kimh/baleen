@@ -2,7 +2,7 @@ require "colorize"
 
 module Baleen
   class ResultDisplay
-    def initialize(result, start_time, end_time, output)
+    def initialize(result, start_time, end_time, output=$stdout)
       @result     = result
       @start_time = start_time
       @end_time   = end_time

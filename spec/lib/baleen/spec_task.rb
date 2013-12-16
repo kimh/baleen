@@ -13,7 +13,7 @@ describe Baleen::Task do
       )
       runner = Baleen::Runner.new(task)
       result = runner.run
-      expect(result[:log]).to include string
+      expect(result[:stdout].join("\n")).to include string
     end
   end
 
@@ -28,7 +28,7 @@ describe Baleen::Task do
       )
       runner = Baleen::Runner.new(task)
       result = runner.run
-      expect(result[:log]).to include "Scenario"
+      expect(result[:stdout].join("\n")).to include "Scenario"
     end
   end
 
