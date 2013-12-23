@@ -12,17 +12,17 @@ module Baleen
 
     def start
       prepare_task
-      @task.results = @backend ? run_with_backend : run
+      runners = create_runners
+      @task.results = @backend ? run_with_backend(runners) : run(runners)
       yield @task
     end
 
     private
 
-    def start_runners
+    def run(runners_group)
       results = []
-      create_runners.each do |runners|
+      runners_group.each do |runners|
         runners.map{|runner|
-          runner.link_container(@backend.fetch_container) if @backend
           runner.future.run
         }.each do |actor|
           results << actor.value
@@ -31,17 +31,19 @@ module Baleen
       results
     end
 
-    def run
-      results = start_runners
-    end
-
-    def run_with_backend
+    def run_with_backend(runners_group)
       @backend.start_containers
-      results = start_runners
+      results = []
+      runners_group.each do |runners|
+        runners.map{|runner|
+          runner.tap{|r| r.link_container(@backend.fetch_container)}.future.run
+        }.each do |actor|
+          results << actor.value
+        end
+      end
       @backend.stop_containers
       results
     end
-
 
     def prepare_task
       @task.prepare
@@ -105,12 +107,6 @@ module Baleen
 
     def link_container(container)
       name = container.json["Name"][1..-1]
-      puts "------ DEBUG START -------"
-        require "pp"
-        load "/Users/kimh/.rvm/gems/ruby-1.9.3-p286@nice/gems/awesome_print-1.2.0/lib/awesome_print.rb"
-        ap name
-      puts "-------DEBUG END   -------"
-
       @opt.merge!({'Links' => ["#{name}:db"]})
     end
 
