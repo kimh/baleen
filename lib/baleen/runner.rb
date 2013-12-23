@@ -4,24 +4,44 @@ require 'forwardable'
 module Baleen
 
   class RunnerManager
-    def initialize(connection, task)
+    def initialize(connection, task, backend=nil)
       @task       = task
       @connection = connection
+      @backend    = backend
     end
 
-    def run
-      results = []
+    def start
       prepare_task
-      create_runners.each do |runners|
-        runners.map{|runner| runner.future.run}.each do |actor|
-          results << actor.value
-        end
-      end
-      @task.results = results
+      @task.results = @backend ? run_with_backend : run
       yield @task
     end
 
     private
+
+    def start_runners
+      results = []
+      create_runners.each do |runners|
+        runners.map{|runner|
+          runner.link_container(@backend.fetch_container) if @backend
+          runner.future.run
+        }.each do |actor|
+          results << actor.value
+        end
+      end
+      results
+    end
+
+    def run
+      results = start_runners
+    end
+
+    def run_with_backend
+      @backend.start_containers
+      results = start_runners
+      @backend.stop_containers
+      results
+    end
+
 
     def prepare_task
       @task.prepare
@@ -47,6 +67,7 @@ module Baleen
       @container  = Docker::Container.create('Cmd' => ["bash", "-c", task.commands], 'Image' => task.image)
       @connection = connection ? connection : Connection.new
       @task = task
+      @opt = {}
     end
 
     def run
@@ -54,7 +75,7 @@ module Baleen
 
       begin
         notify_info("Start container #{@container.id}")
-        @container.start
+        @container.start(@opt)
         @container.wait(600) #TODO move to configuration
         notify_info("Finish container #{@container.id}")
 
@@ -80,6 +101,17 @@ module Baleen
         stderr: stderr,
         file: @task.files,
       }
+    end
+
+    def link_container(container)
+      name = container.json["Name"][1..-1]
+      puts "------ DEBUG START -------"
+        require "pp"
+        load "/Users/kimh/.rvm/gems/ruby-1.9.3-p286@nice/gems/awesome_print-1.2.0/lib/awesome_print.rb"
+        ap name
+      puts "-------DEBUG END   -------"
+
+      @opt.merge!({'Links' => ["#{name}:db"]})
     end
 
   end

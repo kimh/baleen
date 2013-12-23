@@ -64,7 +64,9 @@ module Baleen
         return
       end
 
-      RunnerManager.new(conn, task).run do |response|
+      need_backend = true
+      backend = need_backend ? BackendService.new(task) : nil
+      RunnerManager.new(conn, task, backend).start do |response|
         conn.respond(response)
       end
     end
