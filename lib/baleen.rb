@@ -15,7 +15,7 @@ require 'baleen/message/message'
 require 'baleen/validator'
 require 'baleen/project'
 require 'baleen/builder'
-require 'baleen/backend_service'
+require 'baleen/backend_manager'
 
 module Baleen
   # Your code goes here...

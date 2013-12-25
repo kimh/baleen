@@ -36,7 +36,7 @@ module Baleen
       results = []
       runners_group.each do |runners|
         runners.map{|runner|
-          runner.tap{|r| r.link_container(@backend.fetch_container)}.future.run
+          runner.tap{|r| r.link_container(@backend.fetch_container, @backend.alias)}.future.run
         }.each do |actor|
           results << actor.value
         end
@@ -105,9 +105,9 @@ module Baleen
       }
     end
 
-    def link_container(container)
+    def link_container(container, alias_name)
       name = container.json["Name"][1..-1]
-      @opt.merge!({'Links' => ["#{name}:db"]})
+      @opt.merge!({'Links' => ["#{name}:#{alias_name}"]})
     end
 
   end

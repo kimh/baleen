@@ -112,5 +112,21 @@ module Baleen
         ]
       end
     end
+
+    class Backend < Common
+      def mandatory_attributes
+        [
+          :image,
+          :alias,
+          :port
+        ]
+      end
+
+      def optional_attributes
+        [
+          :command
+        ]
+      end
+    end
   end
 end

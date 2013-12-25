@@ -119,5 +119,25 @@ module Baleen
           concurrency: @config[:runner][:concurrency].to_i,
         )
       end
+
+      def need_backend?
+        @config.has_key?(:backend)
+      end
+
+      def backend
+        @config[:backend]
+      end
+
+      def backend_image
+        backend[:image]
+      end
+
+      def backend_alias
+        backend[:alias]
+      end
+
+      def backend_command
+        backend[:command]
+      end
   end
 end

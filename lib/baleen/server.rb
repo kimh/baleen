@@ -51,12 +51,15 @@ module Baleen
         return
       end
 
-      conn = Connection.new(socket)
+      conn    = Connection.new(socket)
       request = parse_request(json_request)
+      backend = nil
 
       begin
         if request.is_a? Baleen::Task::RunProject
-          task = find_project(request.project, conn).task
+          project = find_project(request.project, conn)
+          backend = BackendManager.new(project) if project.need_backend?
+          task    = project.task
         else
           task = request # request itself is a task
         end
@@ -64,8 +67,6 @@ module Baleen
         return
       end
 
-      need_backend = true
-      backend = need_backend ? BackendService.new(task) : nil
       RunnerManager.new(conn, task, backend).start do |response|
         conn.respond(response)
       end
