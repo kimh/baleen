@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Baleen::VERSION
   spec.authors       = ["Kim, Hirokuni"]
   spec.email         = ["kimh@kvh.co.jp"]
-  spec.description   = %q{Ballen allows you to run standard ruby tests in parallel and isolated environment}
+  spec.description   = %q{Ballen allows you to run cucumber tests in parallel and isolated environment by using Docker containers}
   spec.summary       = %q{Container-based parallel test runner powered by Docker}
   spec.homepage      = ""
   spec.license       = "MIT"
